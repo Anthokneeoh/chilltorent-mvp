@@ -32,6 +32,7 @@ function LoginForm() {
             const { error: authError } = await supabase.auth.signInWithOtp({
                 email,
                 options: {
+                    shouldCreateUser: false,
                     emailRedirectTo: callbackUrl,
                 },
             })
@@ -175,7 +176,6 @@ export default function LoginPage() {
             <Navbar />
             <main className="min-h-screen bg-cloud-whisper flex items-center justify-center py-12 px-4">
                 <div className="max-w-md w-full">
-                    {/* Suspense boundary blocks useSearchParams build crashes completely */}
                     <Suspense fallback={
                         <div className="bg-pure-white rounded-2xl border border-pale-ash/30 p-8 text-center animate-pulse space-y-4">
                             <div className="h-6 bg-pale-ash rounded w-1/3 mx-auto" />
