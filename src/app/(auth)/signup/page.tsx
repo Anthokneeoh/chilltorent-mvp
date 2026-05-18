@@ -252,7 +252,7 @@ export default function SignupPage() {
                                 </div>
 
                                 <Button type="submit" fullWidth disabled={isLoading} className="rounded-xl py-3 font-bold text-sm">
-                                    {isLoading ? 'Committing Session...' : 'Verify & Launch Dashboard'}
+                                    {isLoading ? 'Authenticating...' : 'Verify & Launch Dashboard'}
                                     {!isLoading && <CheckCircle className="ml-2 h-4 w-4" />}
                                 </Button>
                             </form>
