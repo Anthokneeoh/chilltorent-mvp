@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, SlidersHorizontal, X } from 'lucide-react'
 
@@ -13,6 +13,12 @@ function SearchBarInner() {
     const [propertyType, setPropertyType] = useState(searchParams.get('type') || 'ALL')
     const [bedrooms, setBedrooms] = useState(searchParams.get('beds') || 'ANY')
 
+    useEffect(() => {
+        setSearchQuery(searchParams.get('q') || '')
+        setPropertyType(searchParams.get('type') || 'ALL')
+        setBedrooms(searchParams.get('beds') || 'ANY')
+    }, [searchParams])
+
     const handleSearchExecute = (e: React.FormEvent) => {
         e.preventDefault()
         const params = new URLSearchParams()
@@ -22,7 +28,6 @@ function SearchBarInner() {
         if (bedrooms !== 'ANY') params.set('beds', bedrooms)
 
         const queryString = params.toString()
-
         router.push(queryString ? `/?${queryString}` : '/')
         setIsFilterOpen(false)
     }
@@ -103,9 +108,6 @@ function SearchBarInner() {
                         <button
                             type="button"
                             onClick={() => {
-                                setSearchQuery('')
-                                setPropertyType('ALL')
-                                setBedrooms('ANY')
                                 router.push('/')
                                 setIsFilterOpen(false)
                             }}
