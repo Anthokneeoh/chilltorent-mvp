@@ -1,26 +1,99 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* 1. INTEGRATE DESIGN.MD TOKENS */
+@theme {
+  --color-sky-connect: #0061ef;
+  --color-sunshine-burst: #ffce00;
+  --color-deep-plum: #3b197f;
+  --color-ocean-glimmer: #00a4ff;
+  --color-blush-petal: #ffa1cc;
+  --color-forest-calm: #02873f;
+  --color-inkwell-gray: #4b4c4d;
+  --color-true-black: #000000;
+  --color-charcoal-tone: #2d2c2b;
+  --color-cloud-whisper: #f9f4f2;
+  --color-stone-slate: #44423f;
+  --color-pure-white: #ffffff;
+  --color-pale-ash: #e2ded9;
+  --color-light-stone: #d0d0d0;
+
+  /* Use Inter font variable with fallback stack */
+  --font-headspace: var(--font-inter), system-ui, sans-serif;
+
+  /* Typography Scale */
+  --font-size-caption: 12px;
+  --font-size-body-sm: 14px;
+  --font-size-body: 16px;
+  --font-size-subheading: 18px;
+  --font-size-heading-sm: 24px;
+  --font-size-heading: 32px;
+  --font-size-heading-lg: 40px;
+  --font-size-display: 48px;
+
+  /* Border Radii */
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-4xl: 32px;
+  --radius-full: 800px;
+
+  /* Shadows */
+  --shadow-subtle: 0 2px 0 0 rgba(65, 61, 69, 0.2);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* 2. REUSABLE UI/UX COMPONENTS */
+@utility btn-primary {
+  background-color: var(--color-sky-connect);
+  color: var(--color-pure-white);
+  border-radius: var(--radius-3xl);
+  padding: 14px 20px;
+  box-shadow: var(--shadow-subtle);
+  font-weight: 500;
+  transition: opacity 0.2s;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  &:hover {
+    opacity: 0.9;
   }
 }
 
+@utility btn-ghost {
+  background-color: var(--color-cloud-whisper);
+  color: var(--color-charcoal-tone);
+  border-radius: var(--radius-3xl);
+  padding: 0 24px;
+  border: 1px solid var(--color-charcoal-tone);
+  font-weight: 500;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--color-pale-ash);
+  }
+}
+
+@utility card {
+  background-color: var(--color-pure-white);
+  border-radius: var(--radius-2xl);
+  padding: 20px;
+  box-shadow: var(--shadow-subtle);
+}
+
+@utility input-default {
+  background-color: var(--color-pure-white);
+  border: 1px solid var(--color-light-stone);
+  border-radius: var(--radius-lg);
+  padding: 8px 16px;
+  color: var(--color-true-black);
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 97, 239, 0.5);
+  }
+}
+
+/* 3. PLATFORM GLOBAL STYLES */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-cloud-whisper);
+  color: var(--color-inkwell-gray);
+  font-family: var(--font-headspace);
 }

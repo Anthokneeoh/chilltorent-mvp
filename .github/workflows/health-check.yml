@@ -1,0 +1,14 @@
+name: Supabase Database Keep-Alive
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch: 
+
+jobs:
+  ping-health-route:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping ChillToRent API
+        run: |
+          curl -s -I "https://myprestigeservices.com/api/health" || echo "Ping attempted"
