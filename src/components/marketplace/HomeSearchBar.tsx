@@ -21,7 +21,9 @@ function SearchBarInner() {
         if (propertyType !== 'ALL') params.set('type', propertyType)
         if (bedrooms !== 'ANY') params.set('beds', bedrooms)
 
-        router.push(`/?${params.toString()}`)
+        const queryString = params.toString()
+
+        router.push(queryString ? `/?${queryString}` : '/')
         setIsFilterOpen(false)
     }
 
@@ -34,7 +36,7 @@ function SearchBarInner() {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search by LGA or neighborhood (e.g., Ikoyi, Lekki)..."
+                        placeholder="Search by LGA, State, or exact address..."
                         className="w-full bg-transparent text-sm font-medium focus:outline-none placeholder:text-stone-slate/50 text-charcoal-tone py-1"
                     />
                 </div>
@@ -53,7 +55,6 @@ function SearchBarInner() {
                 </button>
             </form>
 
-            {/* Advanced Filter Popover */}
             {isFilterOpen && (
                 <div className="absolute top-full left-0 right-0 mt-3 bg-pure-white border border-pale-ash/50 rounded-2xl shadow-md p-6 z-40 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="flex items-center justify-between border-b border-pale-ash/30 pb-3 mb-4">
@@ -71,25 +72,29 @@ function SearchBarInner() {
                                 onChange={(e) => setPropertyType(e.target.value)}
                                 className="w-full bg-cloud-whisper border border-pale-ash/40 rounded-xl p-2.5 text-xs font-medium text-charcoal-tone focus:outline-none focus:border-pale-ash"
                             >
-                                <option value="ALL">All Structural Classes</option>
-                                <option value="APARTMENT">Apartment Units</option>
-                                <option value="STUDIO">Studio Layouts</option>
-                                <option value="TERRACE">Terrace Duplexes</option>
+                                <option value="ALL">All Property Types</option>
+                                <option value="flat">Flat / Apartment</option>
+                                <option value="bungalow">Bungalow</option>
+                                <option value="duplex">Duplex</option>
+                                <option value="room">Single Room Unit</option>
+                                <option value="self_contain">Self-Contained</option>
+                                <option value="studio">Studio Apartment</option>
                             </select>
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-inkwell-gray uppercase tracking-wide">Unit Capacity</label>
+                            <label className="text-xs font-bold text-inkwell-gray uppercase tracking-wide">Bedroom Count</label>
                             <select
                                 value={bedrooms}
                                 onChange={(e) => setBedrooms(e.target.value)}
                                 className="w-full bg-cloud-whisper border border-pale-ash/40 rounded-xl p-2.5 text-xs font-medium text-charcoal-tone focus:outline-none focus:border-pale-ash"
                             >
                                 <option value="ANY">Any Room Count</option>
-                                <option value="1">1 Bedroom Flat</option>
-                                <option value="2">2 Bedroom Spaces</option>
-                                <option value="3">3 Bedroom Units</option>
-                                <option value="4">4+ Bedroom Layouts</option>
+                                <option value="1">1 Bedroom</option>
+                                <option value="2">2 Bedrooms</option>
+                                <option value="3">3 Bedrooms</option>
+                                <option value="4">4+ Bedrooms</option>
+                                <option value="0">0 (Studio/Room)</option>
                             </select>
                         </div>
                     </div>
@@ -113,7 +118,7 @@ function SearchBarInner() {
                             onClick={handleSearchExecute}
                             className="btn-primary text-xs font-bold px-5 py-2 rounded-xl shadow-xs"
                         >
-                            Apply Filter Matrices
+                            Apply Filters
                         </button>
                     </div>
                 </div>
