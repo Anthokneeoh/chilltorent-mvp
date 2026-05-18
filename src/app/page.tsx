@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Home, Search, SlidersHorizontal, MapPin, Key, ShieldCheck, FileText, ArrowRight } from 'lucide-react'
+import { Home, MapPin, Key, ShieldCheck, FileText, ArrowRight } from 'lucide-react'
 import { formatNaira } from '@/lib/utils/formatters'
+import { HomeSearchBar } from '@/components/marketplace/HomeSearchBar'
 
 const FEATURED_MOCK_PROPERTIES = [
   {
@@ -83,21 +84,9 @@ export default function PublicHomepage() {
             Browse premium rental properties across Lagos. Coordinate inspections with verified lessors, lock in security deposits, and sign tenancy agreements cleanly.
           </p>
 
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto bg-pure-white border border-pale-ash/60 p-2 rounded-2xl shadow-subtle flex items-center gap-2 mt-8">
-            <div className="flex-1 flex items-center gap-2 px-3">
-              <Search className="h-4 w-4 text-stone-slate" />
-              <input
-                type="text"
-                placeholder="Search by LGA or area (e.g., Ikoyi, Lekki)..."
-                className="input-default w-full border-0 ring-0 focus:ring-0 bg-transparent text-sm"
-                disabled
-              />
-            </div>
-            <button className="bg-charcoal-tone text-pure-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-charcoal-tone/90 transition-colors flex items-center gap-2 shadow-subtle">
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              Filter
-            </button>
+          {/* Interactive Client Search Bar */}
+          <div className="mt-8">
+            <HomeSearchBar />
           </div>
         </div>
       </header>
@@ -148,7 +137,8 @@ export default function PublicHomepage() {
                     <p className="text-2xl font-bold text-sky-connect tracking-tight">{formatNaira(property.annual_rent)}</p>
                     <p className="text-[10px] font-medium text-stone-slate uppercase tracking-wider">Per Annum Rent</p>
                   </div>
-                  <Link href={`/login?redirectTo=/properties/${property.id}`}>
+                  {/* Updated UX Pivot: Allow public property viewing */}
+                  <Link href={`/properties/${property.id}`}>
                     <button className="btn-ghost text-sm py-2 px-4 rounded-3xl">View details</button>
                   </Link>
                 </div>

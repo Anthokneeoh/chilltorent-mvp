@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
@@ -18,7 +18,7 @@ interface LandlordWithDocs extends Profile {
     properties: Pick<Property, 'id' | 'title' | 'ownership_doc_url'>[]
 }
 
-export default function AdminKYCQueuePage() {
+function AdminKYCQueueInner() {
     const router = useRouter()
     const { user, isLoading: authLoading } = useAuth()
 
@@ -270,5 +270,17 @@ export default function AdminKYCQueuePage() {
                 </main>
             </div>
         </>
+    )
+}
+
+export default function AdminKYCQueuePage() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen bg-cloud-whisper">
+                <Loader2 className="h-8 w-8 text-sky-connect animate-spin" />
+            </div>
+        }>
+            <AdminKYCQueueInner />
+        </Suspense>
     )
 }
