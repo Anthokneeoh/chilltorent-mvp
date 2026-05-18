@@ -2,7 +2,7 @@
 
 > A transparent, secure, and blazing-fast property rental marketplace designed for Lagos, Nigeria. Connect verified landlords with prospective tenants through clear move-in packages and direct chat channels.
 
-![ChillToRent Preview](https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&auto=format&fit=crop&q=80) ## ✨ Key Features
+![ChillToRent Preview](https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&auto=format&fit=crop&q=80)  ✨ Key Features
 
 * **Role-Based Access Control:** Distinct, protected dashboard environments for Tenants, Landlords, and Admins.
 * **Passwordless Authentication:** Secure OTP/Magic Link email authentication powered by Supabase Auth (with automatic role-based routing).
