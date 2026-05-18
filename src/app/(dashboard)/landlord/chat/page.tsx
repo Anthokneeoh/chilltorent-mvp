@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { Navbar } from '@/components/layout/Navbar'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { ChatWindow } from '@/components/chat/ChatWindow'
-import { MessageCircle, Home, Clock, Loader2, CheckCircle } from 'lucide-react'
+import { MessageCircle, Home, Clock, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { formatDate } from '@/lib/utils/formatters'
 import type { Database } from '@/lib/supabase/types'
 
@@ -25,6 +25,7 @@ function LandlordChatContent() {
     const [viewingRequests, setViewingRequests] = useState<ViewingRequest[]>([])
     const [activeRequest, setActiveRequest] = useState<ViewingRequest | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [databaseError, setDatabaseError] = useState<string | null>(null)
 
     useEffect(() => {
         if (authLoading) return
@@ -44,13 +45,14 @@ function LandlordChatContent() {
 
     const fetchViewingRequests = async (landlordId: string) => {
         try {
+            setDatabaseError(null)
             const { data, error } = await (supabase
                 .from('viewing_requests') as any)
                 .select(`
-          *,
-          property:property_id (id, title, lga, state),
-          tenant:tenant_id (id, full_name, email, phone)
-        `)
+                    *,
+                    property:property_id (id, title, lga, state),
+                    tenant:tenant_id (id, full_name, email, phone)
+                `)
                 .eq('landlord_id', landlordId)
                 .order('created_at', { ascending: false })
 
@@ -60,8 +62,9 @@ function LandlordChatContent() {
             if (!selectedRequestId && data && data.length > 0) {
                 setActiveRequest(data[0])
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error('Failed to fetch landlord viewing requests:', err)
+            setDatabaseError(err.message || 'Infrastructure pipeline permission rejection exception.')
         } finally {
             setIsLoading(false)
         }
@@ -84,8 +87,25 @@ function LandlordChatContent() {
 
     if (isLoading || authLoading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-cloud-whisper">
-                <Loader2 className="h-8 w-8 text-sky-connect animate-spin" />
+            <div className="flex-1 flex items-center justify-center h-[60vh]">
+                <Loader2 className="h-6 w-6 text-sky-connect animate-spin" />
+            </div>
+        )
+    }
+
+    if (databaseError) {
+        return (
+            <div className="max-w-xl mx-auto my-12 p-6 bg-red-50 border border-red-100 rounded-2xl space-y-3 shadow-sm">
+                <div className="flex items-center gap-2 text-red-700">
+                    <AlertCircle className="h-5 w-5 shrink-0" />
+                    <h3 className="font-bold text-sm">Communication Ledger Synchronization Failure</h3>
+                </div>
+                <p className="text-xs text-red-600 leading-relaxed font-mono bg-pure-white/60 p-3 rounded-xl border border-red-100/40">
+                    {databaseError}
+                </p>
+                <p className="text-[11px] text-stone-slate/80">
+                    This usually indicates that Supabase RLS policies are restricting access to the <code>viewing_requests</code> table. Execute structural grants to unlock access.
+                </p>
             </div>
         )
     }
@@ -108,8 +128,7 @@ function LandlordChatContent() {
     }
 
     return (
-        <div className="h-[calc(100vh-64px)] flex flex-col bg-pure-white text-charcoal-tone">
-
+        <div className="h-[calc(100vh-112px)] flex flex-col bg-pure-white text-charcoal-tone rounded-2xl border border-pale-ash/40 shadow-subtle overflow-hidden">
             {/* Structural Workspace Banner */}
             <div className="border-b border-pale-ash/40 bg-pure-white px-6 py-4">
                 <h1 className="text-xl font-black tracking-tight text-charcoal-tone">Tenant Correspondence</h1>
@@ -187,10 +206,13 @@ export default function LandlordChatPage() {
             <Navbar />
             <div className="flex">
                 <Sidebar />
-                <main className="flex-1 md:ml-64">
+                <main className="flex-1 md:ml-64 p-6 sm:p-8">
+                    {/* FIX: Native boundary container wrapper now natively catches searchParams 
+                      or layout async execution dependencies perfectly */}
                     <Suspense fallback={
-                        <div className="flex items-center justify-center min-h-screen bg-cloud-whisper">
-                            <Loader2 className="h-8 w-8 text-sky-connect animate-spin" />
+                        <div className="w-full h-[60vh] flex flex-col items-center justify-center gap-3">
+                            <Loader2 className="h-5 w-5 text-sky-connect animate-spin" />
+                            <p className="text-[10px] font-bold text-stone-slate uppercase tracking-widest">Constructing Workspace Matrix...</p>
                         </div>
                     }>
                         <LandlordChatContent />

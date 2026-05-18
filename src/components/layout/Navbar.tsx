@@ -27,7 +27,9 @@ export function Navbar() {
     }, [pathname])
 
     const isActive = (path: string) => {
-        if (path === '/') return pathname === '/'
+        if (path === '/' || path === '/landlord' || path === '/tenant' || path === '/admin') {
+            return pathname === path
+        }
         return pathname === path || pathname.startsWith(path + '/')
     }
 
@@ -47,7 +49,7 @@ export function Navbar() {
         } else if (role === 'landlord') {
             baseItems.push(
                 { name: 'Dashboard', href: '/landlord', icon: Home },
-                { name: 'My Listings', href: '/landlord/properties', icon: Building },
+                { name: 'My Listings', href: '/landlord', icon: Building },
                 { name: 'Add Property', href: '/landlord/properties/new', icon: PlusSquare },
                 { name: 'Chat', href: '/landlord/chat', icon: MessageCircle }
             )

@@ -29,7 +29,7 @@ export function Sidebar() {
     const pathname = usePathname()
     const { user, profile, signOut } = useAuth()
 
-    const isActive = (href: string) => {
+    const checkActiveState = (href: string) => {
         if (href === '/landlord' || href === '/tenant' || href === '/admin') {
             return pathname === href
         }
@@ -50,7 +50,7 @@ export function Sidebar() {
             case 'landlord':
                 return [
                     { name: 'Dashboard', href: '/landlord', icon: Home },
-                    { name: 'My Listings', href: '/landlord/properties', icon: Building },
+                    { name: 'My Listings', href: '/landlord', icon: Building },
                     { name: 'Add Property', href: '/landlord/properties/new', icon: PlusSquare },
                     { name: 'Messages', href: '/landlord/chat', icon: MessageCircle },
                 ]
@@ -77,7 +77,7 @@ export function Sidebar() {
                 <nav className="mt-2 flex-1 px-3 space-y-1">
                     {navItems.map((item) => {
                         const Icon = item.icon
-                        const currentActive = isActive(item.href)
+                        const currentActive = checkActiveState(item.href)
                         return (
                             <Link
                                 key={item.name}
