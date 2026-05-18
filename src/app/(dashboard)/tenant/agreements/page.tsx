@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
@@ -16,7 +16,7 @@ type Agreement = Database['public']['Tables']['agreements']['Row'] & {
     landlord?: { full_name: string; email: string; phone: string | null }
 }
 
-export default function TenantAgreementsPage() {
+function TenantAgreementsInner() {
     const router = useRouter()
     const { user, isLoading: authLoading } = useAuth()
     const [agreements, setAgreements] = useState<Agreement[]>([])
@@ -206,5 +206,17 @@ export default function TenantAgreementsPage() {
                 </main>
             </div>
         </>
+    )
+}
+
+export default function TenantAgreementsPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex min-h-screen bg-cloud-whisper items-center justify-center">
+                <Loader2 className="h-8 w-8 text-sky-connect animate-spin" />
+            </div>
+        }>
+            <TenantAgreementsInner />
+        </Suspense>
     )
 }

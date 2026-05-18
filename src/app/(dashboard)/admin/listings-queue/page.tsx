@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
@@ -16,7 +16,7 @@ type Property = Database['public']['Tables']['properties']['Row'] & {
     media?: { url: string; media_type: string; is_thumbnail: boolean }[]
 }
 
-export default function AdminListingsQueuePage() {
+function AdminListingsQueueInner() {
     const router = useRouter()
     const { user, isLoading: authLoading } = useAuth()
 
@@ -59,7 +59,6 @@ export default function AdminListingsQueuePage() {
     const fetchPendingListings = async () => {
         setIsLoading(true)
         try {
-            // 1. Grab metadata for all entries requiring system validations
             const { data: listingsData, error: listingsError } = await (supabase
                 .from('properties') as any)
                 .select(`
@@ -78,7 +77,6 @@ export default function AdminListingsQueuePage() {
 
             const propertyIds = listingsData.map((p: any) => p.id)
 
-            // 2. Batched N+1 waterfall query out into a single performant database hit
             const { data: mediaData, error: mediaError } = await (supabase
                 .from('property_media') as any)
                 .select('property_id, url, media_type, is_thumbnail')
@@ -97,7 +95,6 @@ export default function AdminListingsQueuePage() {
                 }
             })
 
-            // 3. Stitched elements together into fully structured layout parameters
             const compiledQueue: Property[] = listingsData.map((property: any) => ({
                 ...property,
                 media: mediaMap[property.id] || [],
@@ -372,5 +369,17 @@ export default function AdminListingsQueuePage() {
                 </main>
             </div>
         </>
+    )
+}
+
+export default function AdminListingsQueuePage() {
+    return (
+        <Suspense fallback={
+            <div className="flex min-h-screen bg-cloud-whisper items-center justify-center">
+                <Loader2 className="h-8 w-8 text-sky-connect animate-spin" />
+            </div>
+        }>
+            <AdminListingsQueueInner />
+        </Suspense>
     )
 }

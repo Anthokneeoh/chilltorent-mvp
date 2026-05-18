@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -47,7 +47,7 @@ interface MediaItem {
     sort_order: number
 }
 
-export default function NewPropertyPage() {
+function NewPropertyInner() {
     const router = useRouter()
     const { user } = useAuth()
 
@@ -555,5 +555,17 @@ export default function NewPropertyPage() {
                 </main>
             </div>
         </>
+    )
+}
+
+export default function NewPropertyPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex min-h-screen bg-cloud-whisper items-center justify-center">
+                <Loader2 className="h-8 w-8 text-sky-connect animate-spin" />
+            </div>
+        }>
+            <NewPropertyInner />
+        </Suspense>
     )
 }
