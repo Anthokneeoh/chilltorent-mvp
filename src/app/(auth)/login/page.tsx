@@ -40,7 +40,11 @@ function LoginForm() {
             if (authError) throw authError
             setOtpSent(true)
         } catch (err: any) {
-            setError(err.message || 'Failed to dispatch secure access code verification packet.')
+            if (err.message === 'Signups not allowed for otp') {
+                setError('Account not found. Please sign up first.')
+            } else {
+                setError(err.message || 'Failed to dispatch secure access code verification packet.')
+            }
         } finally {
             setIsLoading(false)
         }
