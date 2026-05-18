@@ -40,7 +40,7 @@ function LoginForm() {
             if (authError) throw authError
             setOtpSent(true)
         } catch (err: any) {
-            if (err.message === 'Account not found. Please sign up first.') {
+            if (err.message === 'Signups not allowed for otp') {
                 setError('Account not found. Please sign up first.')
             } else {
                 setError(err.message || 'Failed to dispatch secure access code verification packet.')
@@ -158,7 +158,7 @@ function LoginForm() {
                     </div>
 
                     <Button type="submit" fullWidth disabled={isLoading} className="rounded-xl py-3 font-bold text-sm">
-                        {isLoading ? 'Authorizing Profile...' : 'Verify & Sign In'}
+                        {isLoading ? 'Committing Session...' : 'Verify & Launch Dashboard'}
                         {!isLoading && <CheckCircle className="ml-2 h-4 w-4" />}
                     </Button>
                 </form>
