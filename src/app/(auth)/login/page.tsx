@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Mail, ArrowRight, CheckCircle, AlertCircle, Edit2 } from 'lucide-react'
+import { Mail, ArrowRight, CheckCircle, AlertCircle, Edit2, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/Button'
 import { Navbar } from '@/components/layout/Navbar'
 
@@ -13,11 +14,31 @@ function LoginForm() {
     const searchParams = useSearchParams()
     const redirectTo = searchParams.get('redirectTo') || '/'
 
+    const { user, profile, isLoading: authLoading } = useAuth()
+
     const [email, setEmail] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [otpSent, setOtpSent] = useState(false)
     const [otp, setOtp] = useState('')
     const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (authLoading) return
+
+        if (user && profile) {
+            if (redirectTo && redirectTo !== '/') {
+                router.push(redirectTo)
+            } else {
+                if (profile.role === 'admin') {
+                    router.push('/admin')
+                } else if (profile.role === 'landlord') {
+                    router.push('/landlord')
+                } else {
+                    router.push('/')
+                }
+            }
+        }
+    }, [user, profile, authLoading, router, redirectTo])
 
     const handleSendOTP = async (e?: React.FormEvent) => {
         if (e) e.preventDefault()
@@ -65,12 +86,26 @@ function LoginForm() {
             })
 
             if (verifyError) throw verifyError
-            router.push(redirectTo)
+
+            // The global useEffect configuration above handles immediate route routing 
+            // on token verification. Fallback parameter redirect provided here:
+            if (redirectTo && redirectTo !== '/') {
+                router.push(redirectTo)
+            }
         } catch (err: any) {
             setError(err.message || 'The authorization code provided is incorrect or expired.')
         } finally {
             setIsLoading(false)
         }
+    }
+
+    if (user && profile) {
+        return (
+            <div className="bg-pure-white rounded-2xl border border-pale-ash/40 shadow-subtle p-8 flex flex-col items-center justify-center min-h-[320px] gap-3">
+                <Loader2 className="h-6 w-6 text-sky-connect animate-spin" />
+                <p className="text-xs font-bold text-stone-slate uppercase tracking-widest">Synchronizing Workspace...</p>
+            </div>
+        )
     }
 
     return (
