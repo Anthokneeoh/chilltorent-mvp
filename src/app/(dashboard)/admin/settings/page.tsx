@@ -1,7 +1,6 @@
 'use client'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 import { Settings } from 'lucide-react'
 import { Navbar } from '@/components/layout/Navbar'
