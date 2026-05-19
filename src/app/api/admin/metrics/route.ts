@@ -48,18 +48,20 @@ export async function GET() {
             agreementsGenerated: agreementsGenerated || 0,
         }
 
-        // Fetch recent activity
-        const { data: recentProperties } = await (supabaseAdmin
-            .from('properties') as any)
-            .select('id, title, status, created_at, landlord:profiles!landlord_id(full_name)')
-            .order('created_at', { ascending: false })
-            .limit(5)
+        // Fetch recent activity in parallel
+        const [recentPropertiesResult, recentViewingsResult] = await Promise.all([
+            (supabaseAdmin.from('properties') as any)
+                .select('id, title, status, created_at, landlord:profiles!landlord_id(full_name)')
+                .order('created_at', { ascending: false })
+                .limit(5),
+            (supabaseAdmin.from('viewing_requests') as any)
+                .select('id, status, created_at, property:property_id(title), tenant:tenant_id(full_name)')
+                .order('created_at', { ascending: false })
+                .limit(5),
+        ])
 
-        const { data: recentViewings } = await (supabaseAdmin
-            .from('viewing_requests') as any)
-            .select('id, status, created_at, property:property_id(title), tenant:tenant_id(full_name)')
-            .order('created_at', { ascending: false })
-            .limit(5)
+        const recentProperties = recentPropertiesResult.data
+        const recentViewings = recentViewingsResult.data
 
         const compiledActivities = [
             ...(recentProperties || []).map((p: any) => ({
