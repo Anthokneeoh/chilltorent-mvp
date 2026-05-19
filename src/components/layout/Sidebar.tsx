@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
     Home,
     Search,
@@ -14,10 +15,12 @@ import {
     User,
     Settings,
     Building,
+    Loader2
 } from 'lucide-react'
 import { cn } from '@/lib/utils/formatters'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/Button'
+import { supabase } from '@/lib/supabase/client'
 
 interface NavItem {
     name: string
@@ -27,7 +30,9 @@ interface NavItem {
 
 export function Sidebar() {
     const pathname = usePathname()
-    const { user, profile, signOut } = useAuth()
+    const router = useRouter()
+    const { user, profile } = useAuth()
+    const [isLoggingOut, setIsLoggingOut] = useState(false)
 
     const checkActiveState = (href: string) => {
         if (href === '/landlord' || href === '/tenant' || href === '/admin') {
@@ -64,6 +69,22 @@ export function Sidebar() {
                 ]
             default:
                 return []
+        }
+    }
+
+    const handleSignOut = async () => {
+        if (isLoggingOut) return
+        setIsLoggingOut(true)
+        try {
+            const { error } = await supabase.auth.signOut()
+            if (error) throw error
+            router.refresh()
+            router.push('/login')
+        } catch (err) {
+            console.error('Sign out execution tracking exception instance:', err)
+            alert('Failed to cleanly terminate auth tokens. Please refresh and retry.')
+        } finally {
+            setIsLoggingOut(false)
         }
     }
 
@@ -115,11 +136,16 @@ export function Sidebar() {
                         variant="ghost"
                         size="sm"
                         fullWidth
-                        onClick={() => signOut()}
-                        className="justify-start text-red-600 hover:text-red-700 hover:bg-red-50/60 font-medium transition-colors"
+                        onClick={handleSignOut}
+                        disabled={isLoggingOut}
+                        className="justify-start text-red-600 hover:text-red-700 hover:bg-red-50/60 font-medium transition-colors disabled:opacity-50"
                     >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Sign Out
+                        {isLoggingOut ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <LogOut className="mr-2 h-4 w-4" />
+                        )}
+                        <span>{isLoggingOut ? 'Terminating Context...' : 'Sign Out'}</span>
                     </Button>
                 </div>
             </div>
