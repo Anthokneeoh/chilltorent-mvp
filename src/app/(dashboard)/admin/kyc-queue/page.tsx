@@ -20,7 +20,7 @@ interface LandlordWithDocs extends Profile {
 
 function AdminKYCQueueInner() {
     const router = useRouter()
-    const { user, isLoading: authLoading } = useAuth()
+    const { user, profile, isLoading: authLoading } = useAuth()
 
     const [landlords, setLandlords] = useState<LandlordWithDocs[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -35,30 +35,29 @@ function AdminKYCQueueInner() {
             return
         }
 
-        const verifyAdminRoleAndHydrate = async () => {
+        if (profile?.role !== 'admin') {
+            router.push('/')
+            return
+        }
+
+        setIsAdmin(true)
+
+        const hydrate = async () => {
             try {
-                const { data: profileData } = await (supabase.from('profiles') as any)
-                    .select('role')
-                    .eq('id', user.id)
-                    .single()
-
-                const profile = profileData as { role: string } | null
-
-                if (profile?.role !== 'admin') {
-                    router.push('/')
-                    return
-                }
-
-                setIsAdmin(true)
-                await fetchPendingKYC()
-            } catch (err) {
-                console.error('Security verification execution exception:', err)
-                router.push('/')
+                // Implement a 10-second timeout fallback race condition for heavy dashboard queries
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('KYC verification queue query timed out.')), 10000)
+                )
+                await Promise.race([fetchPendingKYC(), timeoutPromise])
+            } catch (err: any) {
+                console.error('KYC Hydration error:', err)
+                setPipelineError(err.message || 'Failed to resolve database collection synchronization values.')
+                setIsLoading(false)
             }
         }
 
-        verifyAdminRoleAndHydrate()
-    }, [user, authLoading, router])
+        hydrate()
+    }, [user, profile, authLoading, router])
 
     const fetchPendingKYC = async () => {
         setIsLoading(true)
@@ -127,24 +126,48 @@ function AdminKYCQueueInner() {
     const handleApprove = async (landlordId: string) => {
         setProcessingId(landlordId)
         try {
-            const { error } = await (supabase.from('profiles') as any)
-                .update({ kyc_verified: true })
-                .eq('id', landlordId)
+            const res = await fetch('/api/admin/kyc', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ landlordId, action: 'approve' }),
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed to approve account')
 
-            if (error) throw error
             await fetchPendingKYC()
-        } catch (err) {
+        } catch (err: any) {
             console.error('KYC confirmation state mutation crash:', err)
-            alert('Failed to authorize verification parameters. Please retry.')
+            alert(err.message || 'Failed to authorize verification parameters. Please retry.')
         } finally {
             setProcessingId(null)
         }
     }
 
     const handleReject = async (landlordId: string) => {
+        const reason = prompt('Provide the reason for declining KYC verification:')
+        if (reason === null) return // User cancelled prompt
+        if (!reason.trim()) {
+            alert('A rejection reason is required.')
+            return
+        }
+
         setProcessingId(landlordId)
-        alert('Rejection Pipeline: Profile will be flagged for secondary review. Messaging channels notified.')
-        setProcessingId(null)
+        try {
+            const res = await fetch('/api/admin/kyc', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ landlordId, action: 'reject', reason }),
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed to decline account')
+
+            await fetchPendingKYC()
+        } catch (err: any) {
+            console.error('KYC rejection mutation crash:', err)
+            alert(err.message || 'Failed to reject KYC. Please retry.')
+        } finally {
+            setProcessingId(null)
+        }
     }
 
     const openDocument = (url: string) => {

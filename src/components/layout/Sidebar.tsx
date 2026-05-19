@@ -35,10 +35,22 @@ export function Sidebar() {
     const [isLoggingOut, setIsLoggingOut] = useState(false)
 
     const checkActiveState = (href: string) => {
+        if (pathname === href) return true
+
         if (href === '/landlord' || href === '/tenant' || href === '/admin') {
-            return pathname === href
+            return false
         }
-        return pathname === href || pathname.startsWith(href + '/')
+
+        // Prevent duplicate highlights: check if another nav item has a more specific prefix match
+        const items = getNavItems()
+        const hasMoreSpecificMatch = items.some(
+            (item) => item.href !== href && item.href.startsWith(href + '/') && (pathname === item.href || pathname.startsWith(item.href + '/'))
+        )
+        if (hasMoreSpecificMatch) {
+            return false
+        }
+
+        return pathname.startsWith(href + '/')
     }
 
     const getNavItems = (): NavItem[] => {

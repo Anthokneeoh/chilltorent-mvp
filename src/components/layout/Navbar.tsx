@@ -18,10 +18,22 @@ export function Navbar() {
     }, [pathname])
 
     const isActive = (path: string) => {
+        if (pathname === path) return true
+
         if (path === '/' || path === '/landlord' || path === '/tenant' || path === '/admin') {
-            return pathname === path
+            return false
         }
-        return pathname === path || pathname.startsWith(path + '/')
+
+        // Prevent duplicate highlights: check if another nav item has a more specific prefix match
+        const items = getMobileNavItems()
+        const hasMoreSpecificMatch = items.some(
+            (item) => item.href !== path && item.href.startsWith(path + '/') && (pathname === item.href || pathname.startsWith(item.href + '/'))
+        )
+        if (hasMoreSpecificMatch) {
+            return false
+        }
+
+        return pathname.startsWith(path + '/')
     }
 
     const getMobileNavItems = () => {

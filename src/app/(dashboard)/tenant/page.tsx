@@ -39,7 +39,19 @@ export default function TenantDashboard() {
             return
         }
 
-        fetchData(user.id)
+        const hydrate = async () => {
+            try {
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Tenant dashboard metrics query timed out.')), 10000)
+                )
+                await Promise.race([fetchData(user.id), timeoutPromise])
+            } catch (err) {
+                console.error('Tenant hydration error:', err)
+                setIsLoading(false)
+            }
+        }
+
+        hydrate()
     }, [user, authLoading, router])
 
     const fetchData = async (tenantId: string) => {

@@ -90,7 +90,13 @@ export default function AdminDashboard() {
 
         const loadAdminMetricsAndActivities = async () => {
             try {
-                await Promise.all([fetchMetrics(), fetchRecentActivity()])
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Admin dashboard metrics query timed out.')), 10000)
+                )
+                await Promise.race([
+                    Promise.all([fetchMetrics(), fetchRecentActivity()]),
+                    timeoutPromise
+                ])
             } catch (err) {
                 console.error('Security authorization boundary failure:', err)
             } finally {

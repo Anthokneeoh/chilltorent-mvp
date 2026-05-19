@@ -20,7 +20,7 @@ interface Property extends PropertyRow {
 
 function AdminListingsQueueInner() {
     const router = useRouter()
-    const { user, isLoading: authLoading } = useAuth()
+    const { user, profile, isLoading: authLoading } = useAuth()
 
     const [properties, setProperties] = useState<Property[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -35,37 +35,38 @@ function AdminListingsQueueInner() {
             return
         }
 
-        const verifyAdminRoleAndHydrate = async () => {
+        if (profile?.role !== 'admin') {
+            router.push('/')
+            return
+        }
+
+        setIsAdmin(true)
+
+        const hydrate = async () => {
             try {
-                const { data: profile } = await (supabase.from('profiles') as any)
-                    .select('role')
-                    .eq('id', user.id)
-                    .single()
-
-                if (profile?.role !== 'admin') {
-                    router.push('/')
-                    return
-                }
-
-                setIsAdmin(true)
-                await fetchPendingListings()
-            } catch (err) {
-                console.error('Administrative access routing violation:', err)
-                router.push('/')
+                // Implement a 10-second timeout fallback race condition for heavy dashboard queries
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Verification listing queue query timed out.')), 10000)
+                )
+                await Promise.race([fetchPendingListings(), timeoutPromise])
+            } catch (err: any) {
+                console.error('Administrative access hydration failure:', err)
+                setQueueError(err.message || 'Failed to establish synchronization hooks to asset entities ledger.')
+                setIsLoading(false)
             }
         }
 
-        verifyAdminRoleAndHydrate()
-    }, [user, authLoading, router])
+        hydrate()
+    }, [user, profile, authLoading, router])
 
     const fetchPendingListings = async () => {
         setIsLoading(true)
         setQueueError(null)
         try {
-            // 1. Hydrate multi-state property structures natively
+            // 1. Hydrate multi-state property structures natively (explicit column selection list)
             const { data: listingsData, error: listingsError } = await (supabase.from('properties') as any)
                 .select(`
-                    *,
+                    id, title, status, created_at, address, lga, state, annual_rent, total_package, bedrooms, bathrooms, property_type, is_furnished, electricity_band, water_source, security_rating, road_condition, landlord_id,
                     landlord:landlord_id (full_name, email, kyc_verified)
                 `)
                 .in('status', ['PENDING_PAYMENT', 'PENDING_APPROVAL'])
