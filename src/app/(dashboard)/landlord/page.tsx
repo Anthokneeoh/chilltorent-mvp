@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/useAuth'
 import { Navbar } from '@/components/layout/Navbar'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Button } from '@/components/ui/Button'
 import { formatNaira, formatDate } from '@/lib/utils/formatters'
-import { PlusCircle, Home, Eye, MessageCircle, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react'
+import { PlusCircle, Home, Eye, MessageCircle, CheckCircle, Clock, Loader2 } from 'lucide-react'
 import type { Database } from '@/lib/supabase/types'
 
 type Property = Database['public']['Tables']['properties']['Row']
@@ -19,24 +20,23 @@ type ViewingRequest = Database['public']['Tables']['viewing_requests']['Row'] & 
 
 export default function LandlordDashboard() {
     const router = useRouter()
+    const { user, profile, isLoading: authLoading } = useAuth()
+
     const [properties, setProperties] = useState<Property[]>([])
     const [viewingRequests, setViewingRequests] = useState<ViewingRequest[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [processingIds, setProcessingIds] = useState<string[]>([])
-    const [userId, setUserId] = useState<string | null>(null)
 
     useEffect(() => {
-        const getUserAndData = async () => {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
-                router.push('/login')
-                return
-            }
-            setUserId(user.id)
-            await fetchData(user.id)
+        if (authLoading) return
+
+        if (!user) {
+            router.push('/login')
+            return
         }
-        getUserAndData()
-    }, [router])
+
+        fetchData(user.id)
+    }, [user, authLoading, router])
 
     const fetchData = async (landlordId: string) => {
         try {
@@ -109,7 +109,7 @@ export default function LandlordDashboard() {
                 .eq('id', requestId)
 
             if (error) throw error
-            if (userId) await fetchData(userId)
+            if (user) await fetchData(user.id)
         } catch (err) {
             console.error('Failed to change request state tracking matrix:', err)
             alert('Could not update status parameters.')
@@ -118,7 +118,7 @@ export default function LandlordDashboard() {
         }
     }
 
-    if (isLoading) {
+    if (isLoading || authLoading) {
         return (
             <>
                 <Navbar />
@@ -144,7 +144,7 @@ export default function LandlordDashboard() {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
                                 <h1 className="text-3xl font-black tracking-tight">Landlord Dashboard</h1>
-                                <p className="text-sm font-medium text-inkwell-gray mt-1">Oversee listed parameters and sync live tenant request arrays</p>
+                                <p className="text-sm font-medium text-inkwell-gray mt-1">Welcome back, {profile?.full_name || 'Asset Manager'} — Oversee listed parameters and sync live tenant request arrays</p>
                             </div>
                             <Link href="/landlord/properties/new" className="shrink-0">
                                 <Button className="flex items-center gap-2 rounded-xl py-2.5 font-bold text-sm shadow-sm">

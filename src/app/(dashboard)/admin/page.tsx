@@ -56,7 +56,7 @@ interface MetricCounts {
 
 export default function AdminDashboard() {
     const router = useRouter()
-    const { user, isLoading: authLoading } = useAuth()
+    const { user, profile, isLoading: authLoading } = useAuth()
 
     const [isLoading, setIsLoading] = useState(true)
     const [isAdmin, setIsAdmin] = useState(false)
@@ -75,36 +75,31 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         if (authLoading) return
+
         if (!user) {
             router.push('/login')
             return
         }
 
-        const verifyAdminAuthorization = async () => {
+        if (profile?.role !== 'admin') {
+            router.push('/')
+            return
+        }
+
+        setIsAdmin(true)
+
+        const loadAdminMetricsAndActivities = async () => {
             try {
-                const { data: profile } = await (supabase
-                    .from('profiles') as any)
-                    .select('role')
-                    .eq('id', user.id)
-                    .single()
-
-                if (profile?.role !== 'admin') {
-                    router.push('/')
-                    return
-                }
-
-                setIsAdmin(true)
                 await Promise.all([fetchMetrics(), fetchRecentActivity()])
             } catch (err) {
                 console.error('Security authorization boundary failure:', err)
-                router.push('/')
             } finally {
                 setIsLoading(false)
             }
         }
 
-        verifyAdminAuthorization()
-    }, [user, authLoading, router])
+        loadAdminMetricsAndActivities()
+    }, [user, profile, authLoading, router])
 
     const fetchMetrics = async () => {
         try {

@@ -25,7 +25,7 @@ type Agreement = Database['public']['Tables']['agreements']['Row'] & {
 
 export default function TenantDashboard() {
     const router = useRouter()
-    const { user, isLoading: authLoading } = useAuth()
+    const { user, profile, isLoading: authLoading } = useAuth()
 
     const [viewingRequests, setViewingRequests] = useState<ViewingRequest[]>([])
     const [agreements, setAgreements] = useState<Agreement[]>([])
@@ -137,10 +137,15 @@ export default function TenantDashboard() {
                 <main className="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8">
                     <div className="max-w-7xl mx-auto space-y-8">
 
-                        {/* Context Title Header */}
-                        <div>
-                            <h1 className="text-3xl font-black tracking-tight">Tenant Dashboard</h1>
-                            <p className="text-sm font-medium text-inkwell-gray mt-1">Track upcoming viewings, digital agreements, and tailored property metrics</p>
+                        {/* Welcome Back Banner Header */}
+                        <div className="bg-pure-white p-6 rounded-2xl border border-pale-ash/40 shadow-subtle flex items-center gap-4">
+                            <div className="p-3 bg-cloud-whisper border border-pale-ash/40 rounded-xl text-sky-connect">
+                                <Home className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-black tracking-tight">Welcome Back, {profile?.full_name || 'Tenant'}</h1>
+                                <p className="text-xs font-medium text-inkwell-gray mt-1">Track upcoming viewings, digital agreements, and tailored property metrics across Lagos.</p>
+                            </div>
                         </div>
 
                         {/* Aggregated Quick-Metric Summaries */}

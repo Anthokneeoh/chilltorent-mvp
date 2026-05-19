@@ -60,10 +60,11 @@ export async function proxy(request: NextRequest) {
             .single()
 
         const role = profile?.role || 'tenant'
+
         const dashboardMap = {
-            tenant: '/tenant/chat', // Send straight to functional routes to avoid root loop
+            tenant: '/tenant',
             landlord: '/landlord',
-            admin: '/admin/users',
+            admin: '/admin',
         }
         return NextResponse.redirect(new URL(dashboardMap[role as keyof typeof dashboardMap] || '/', request.url))
     }
