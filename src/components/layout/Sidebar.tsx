@@ -50,7 +50,7 @@ export function Sidebar() {
             case 'landlord':
                 return [
                     { name: 'Dashboard', href: '/landlord', icon: Home },
-                    { name: 'My Listings', href: '/landlord', icon: Building },
+                    { name: 'My Listings', href: '/landlord/properties', icon: Building },
                     { name: 'Add Property', href: '/landlord/properties/new', icon: PlusSquare },
                     { name: 'Messages', href: '/landlord/chat', icon: MessageCircle },
                 ]
@@ -72,7 +72,7 @@ export function Sidebar() {
     if (!user || !profile) return null
 
     return (
-        <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:top-16 md:bottom-0 md:left-0 bg-pure-white border-r border-pale-ash">
+        <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:top-16 md:bottom-0 md:left-0 bg-cloud-whisper border-r border-pale-ash/50">
             <div className="flex flex-col flex-1 overflow-y-auto pt-5 pb-4">
                 <nav className="mt-2 flex-1 px-3 space-y-1">
                     {navItems.map((item) => {
@@ -83,16 +83,16 @@ export function Sidebar() {
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    'group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200',
+                                    'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 border',
                                     currentActive
-                                        ? 'bg-sky-connect text-pure-white shadow-subtle'
-                                        : 'text-inkwell-gray hover:bg-cloud-whisper hover:text-charcoal-tone'
+                                        ? 'bg-pure-white text-charcoal-tone font-semibold border-pale-ash/60 shadow-xs'
+                                        : 'text-inkwell-gray hover:bg-pure-white/50 hover:text-charcoal-tone border-transparent'
                                 )}
                             >
                                 <Icon
                                     className={cn(
                                         'mr-3 h-4 w-4 shrink-0 transition-colors',
-                                        currentActive ? 'text-pure-white' : 'text-stone-slate group-hover:text-inkwell-gray'
+                                        currentActive ? 'text-sky-connect' : 'text-stone-slate group-hover:text-inkwell-gray'
                                     )}
                                 />
                                 {item.name}

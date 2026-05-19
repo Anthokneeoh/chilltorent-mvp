@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
-/* 1. INTEGRATE DESIGN.MD TOKENS */
+/* 1. SaaS DESIGN TOKENS */
 @theme {
-  --color-sky-connect: #0061ef;
-  --color-sunshine-burst: #ffce00;
-  --color-deep-plum: #3b197f;
-  --color-ocean-glimmer: #00a4ff;
-  --color-blush-petal: #ffa1cc;
-  --color-forest-calm: #02873f;
-  --color-inkwell-gray: #4b4c4d;
-  --color-true-black: #000000;
-  --color-charcoal-tone: #2d2c2b;
-  --color-cloud-whisper: #f9f4f2;
-  --color-stone-slate: #44423f;
-  --color-pure-white: #ffffff;
-  --color-pale-ash: #e2ded9;
-  --color-light-stone: #d0d0d0;
+  --color-sky-connect: #4f46e5;       /* Premium Accent: Indigo */
+  --color-sunshine-burst: #f59e0b;    /* Warning Accent */
+  --color-deep-plum: #4338ca;         /* Deep Accent */
+  --color-ocean-glimmer: #3b82f6;     /* Secondary Accent */
+  --color-blush-petal: #ec4899;
+  --color-forest-calm: #10b981;       /* Success Green */
+  --color-inkwell-gray: #4b5563;      /* Text Secondary */
+  --color-true-black: #111827;        /* Core Text */
+  --color-charcoal-tone: #111827;     /* Text Primary */
+  --color-cloud-whisper: #f9fafb;     /* Base Background */
+  --color-stone-slate: #6b7280;       /* Text Muted */
+  --color-pure-white: #ffffff;        /* Surface Background */
+  --color-pale-ash: #e5e7eb;          /* Border Default */
+  --color-light-stone: #d1d5db;       /* Border Hover */
 
-  /* Use Inter font variable with fallback stack */
-  --font-headspace: var(--font-inter), system-ui, sans-serif;
+  /* Use Geometric sans font variable with fallback stack */
+  --font-headspace: var(--font-geom-sans), system-ui, -apple-system, sans-serif;
 
   /* Typography Scale */
   --font-size-caption: 12px;
@@ -26,48 +26,60 @@
   --font-size-body: 16px;
   --font-size-subheading: 18px;
   --font-size-heading-sm: 24px;
-  --font-size-heading: 32px;
-  --font-size-heading-lg: 40px;
-  --font-size-display: 48px;
+  --font-size-heading: 30px;
+  --font-size-heading-lg: 38px;
+  --font-size-display: 46px;
 
-  /* Border Radii */
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 16px;
-  --radius-3xl: 24px;
-  --radius-4xl: 32px;
-  --radius-full: 800px;
+  /* Border Radii (SaaS Spec: 6px default, 8px cards, 4px inputs) */
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
+  --radius-3xl: 6px;
+  --radius-4xl: 8px;
+  --radius-full: 9999px;
 
-  /* Shadows */
-  --shadow-subtle: 0 2px 0 0 rgba(65, 61, 69, 0.2);
+  /* Shadows (SaaS Spec: 0 1px 3px rgba(0,0,0,0.08) for cards) */
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 /* 2. REUSABLE UI/UX COMPONENTS */
 @utility btn-primary {
   background-color: var(--color-sky-connect);
   color: var(--color-pure-white);
-  border-radius: var(--radius-3xl);
-  padding: 14px 20px;
+  border-radius: var(--radius-lg);
+  padding: 8px 16px;
   box-shadow: var(--shadow-subtle);
   font-weight: 500;
-  transition: opacity 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    opacity: 0.9;
+    background-color: #4338ca;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-pure-white), 0 0 0 4px var(--color-sky-connect);
   }
 }
 
 @utility btn-ghost {
-  background-color: var(--color-cloud-whisper);
-  color: var(--color-charcoal-tone);
-  border-radius: var(--radius-3xl);
-  padding: 0 24px;
-  border: 1px solid var(--color-charcoal-tone);
+  background-color: transparent;
+  color: var(--color-inkwell-gray);
+  border-radius: var(--radius-lg);
+  padding: 8px 16px;
+  border: 1px solid var(--color-pale-ash);
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background-color: var(--color-pale-ash);
+    background-color: var(--color-cloud-whisper);
+    color: var(--color-charcoal-tone);
+    border-color: var(--color-light-stone);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-pure-white), 0 0 0 4px var(--color-sky-connect);
   }
 }
 
@@ -75,19 +87,27 @@
   background-color: var(--color-pure-white);
   border-radius: var(--radius-2xl);
   padding: 20px;
+  border: 1px solid var(--color-pale-ash);
   box-shadow: var(--shadow-subtle);
 }
 
 @utility input-default {
   background-color: var(--color-pure-white);
-  border: 1px solid var(--color-light-stone);
-  border-radius: var(--radius-lg);
-  padding: 8px 16px;
-  color: var(--color-true-black);
+  border: 1px solid var(--color-pale-ash);
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: var(--color-charcoal-tone);
+  font-size: 14px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-light-stone);
+  }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 97, 239, 0.5);
+    border-color: var(--color-sky-connect);
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(79, 70, 229, 0.15);
   }
 }
 
@@ -96,4 +116,6 @@ body {
   background-color: var(--color-cloud-whisper);
   color: var(--color-inkwell-gray);
   font-family: var(--font-headspace);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

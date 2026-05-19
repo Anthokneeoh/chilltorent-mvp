@@ -141,42 +141,42 @@ function PropertyFeedInner() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {properties.map((property) => (
-                    <div key={property.id} className="card overflow-hidden p-0 hover:shadow-md transition-all">
+                    <div key={property.id} className="card overflow-hidden p-0 hover:shadow-md transition-all duration-200 hover:border-light-stone">
                         <div className="relative h-48 bg-cloud-whisper overflow-hidden">
                             <Image
                                 src={property.thumbnail}
                                 alt={property.title}
                                 fill
-                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                                className="object-cover w-full h-full group-hover:scale-102 transition-transform duration-300"
                                 unoptimized
                             />
-                            <span className="absolute top-3 left-3 bg-pure-white/90 backdrop-blur-xs text-charcoal-tone font-bold text-[10px] uppercase px-2.5 py-0.5 rounded-md shadow-xs border border-pale-ash/20">
+                            <span className="absolute top-3 left-3 bg-pure-white/90 backdrop-blur-xs text-charcoal-tone font-semibold text-[10px] uppercase px-2 py-0.5 rounded shadow-xs border border-pale-ash/20">
                                 {property.property_type.replace('_', ' ')}
                             </span>
                         </div>
                         <div className="p-5 space-y-4">
                             <div>
-                                <h3 className="font-bold text-lg text-charcoal-tone tracking-tight truncate">{property.title}</h3>
-                                <div className="flex items-center text-sm text-stone-slate mt-1">
+                                <h3 className="font-bold text-base text-charcoal-tone tracking-tight truncate">{property.title}</h3>
+                                <div className="flex items-center text-xs text-stone-slate mt-1">
                                     <MapPin className="h-3.5 w-3.5 mr-1 text-sky-connect shrink-0" />
                                     {property.lga}, {property.state}
                                 </div>
                             </div>
-                            <div className="flex flex-wrap gap-2 text-xs font-medium text-stone-slate">
-                                <span className="bg-cloud-whisper/80 border border-pale-ash/20 px-2.5 py-0.5 rounded-lg">{property.bedrooms} Bed Units</span>
-                                <span className="bg-cloud-whisper/80 border border-pale-ash/20 px-2.5 py-0.5 rounded-lg">{property.bathrooms} Bath</span>
+                            <div className="flex flex-wrap gap-2 text-[11px] font-medium text-stone-slate">
+                                <span className="bg-cloud-whisper border border-pale-ash/60 px-2 py-0.5 rounded">{property.bedrooms} Bed Units</span>
+                                <span className="bg-cloud-whisper border border-pale-ash/60 px-2 py-0.5 rounded">{property.bathrooms} Bath</span>
                                 {!isUsingMockData && (
-                                    <span className="bg-sky-connect/5 text-sky-connect border border-sky-connect/10 px-2 py-0.5 rounded-md text-[10px] uppercase font-bold ml-auto">Verified DB</span>
+                                    <span className="bg-sky-connect/5 text-sky-connect border border-sky-connect/10 px-2 py-0.5 rounded text-[10px] uppercase font-bold ml-auto">Verified DB</span>
                                 )}
                             </div>
                             <div className="pt-4 border-t border-pale-ash/30 flex items-center justify-between">
                                 <div>
-                                    <p className="text-2xl font-bold text-sky-connect tracking-tight">{formatNaira(property.annual_rent)}</p>
+                                    <p className="text-xl font-bold text-sky-connect tracking-tight">{formatNaira(property.annual_rent)}</p>
                                     <p className="text-[10px] font-medium text-stone-slate uppercase tracking-wider">Per Annum Rent</p>
                                 </div>
                                 <Link href={isUsingMockData ? '#' : `/properties/${property.id}`}>
                                     <button
-                                        className="btn-ghost text-sm py-2 px-4 rounded-3xl"
+                                        className="btn-ghost text-xs py-1.5 px-3 rounded-md"
                                         onClick={(e) => isUsingMockData && e.preventDefault()}
                                     >
                                         View details

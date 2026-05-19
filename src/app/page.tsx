@@ -30,19 +30,19 @@ export default function PublicHomepage() {
       </nav>
 
       {/* Hero Section */}
-      <header className="bg-gradient-to-b from-pure-white to-cloud-whisper/20 border-b border-pale-ash/20 py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center space-y-6">
-          <span className="inline-flex items-center gap-1.5 bg-sky-connect/5 text-sky-connect border border-sky-connect/10 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+      <header className="bg-pure-white border-b border-pale-ash/40 py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto text-center space-y-6">
+          <span className="inline-flex items-center gap-1.5 bg-sky-connect/5 text-sky-connect border border-sky-connect/10 px-3 py-1 rounded-full text-xs font-semibold tracking-wide">
             🇳🇬 Transparent Property Packages
           </span>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-charcoal-tone leading-tight">
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-charcoal-tone leading-tight">
             Find verified listings with <span className="text-sky-connect">clear</span> move-in packages.
           </h1>
-          <p className="text-base text-inkwell-gray max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-inkwell-gray max-w-xl mx-auto leading-relaxed">
             Browse premium rental properties across Lagos. Coordinate inspections with verified lessors, lock in security deposits, and sign tenancy agreements cleanly.
           </p>
 
-          <div className="mt-8">
+          <div className="pt-4">
             <HomeSearchBar />
           </div>
         </div>
@@ -52,24 +52,24 @@ export default function PublicHomepage() {
       <PropertyFeed />
 
       {/* Feature Pillars */}
-      <section className="bg-pure-white border-t border-pale-ash/40 py-12 mt-12 px-4 sm:px-6 lg:px-8">
+      <section className="bg-pure-white border-t border-pale-ash/40 py-16 mt-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           <div className="space-y-3 flex flex-col items-center">
-            <div className="p-3 bg-sky-connect/5 border border-sky-connect/10 text-sky-connect rounded-2xl shadow-subtle">
+            <div className="p-3 bg-sky-connect/5 border border-sky-connect/10 text-sky-connect rounded-xl shadow-subtle">
               <Key className="h-5 w-5" />
             </div>
             <h3 className="text-base font-bold text-charcoal-tone">Direct Chat Channels</h3>
             <p className="text-sm text-stone-slate max-w-xs">Chat loops open automatically the moment an inspection is approved by the lessor profile.</p>
           </div>
           <div className="space-y-3 flex flex-col items-center">
-            <div className="p-3 bg-green-50 text-green-600 border border-green-100 rounded-2xl shadow-subtle">
+            <div className="p-3 bg-green-50 text-green-600 border border-green-100 rounded-xl shadow-subtle">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <h3 className="text-base font-bold text-charcoal-tone">KYC Identity Guards</h3>
             <p className="text-sm text-stone-slate max-w-xs">All ownership certificates and landlord profiles undergo rigorous admin verification queues.</p>
           </div>
           <div className="space-y-3 flex flex-col items-center">
-            <div className="p-3 bg-purple-50 text-purple-600 border border-purple-100 rounded-2xl shadow-subtle">
+            <div className="p-3 bg-purple-50 text-purple-600 border border-purple-100 rounded-xl shadow-subtle">
               <FileText className="h-5 w-5" />
             </div>
             <h3 className="text-base font-bold text-charcoal-tone">Tenancy Deed Assemblies</h3>

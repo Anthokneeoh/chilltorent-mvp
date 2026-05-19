@@ -1,10 +1,10 @@
-import { Inter } from "next/font/google";
+import { Outfit } from "next/font/google";
 import { PostHogProvider } from "@/providers/PostHogProvider";
 import "./globals.css";
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-geom-sans",
 });
 
 export const metadata = {
@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={outfit.variable}>
       <body className="antialiased">
         <PostHogProvider>
           {children}

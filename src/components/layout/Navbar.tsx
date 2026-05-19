@@ -67,16 +67,13 @@ export function Navbar() {
 
     return (
         <header
-            className={cn(
-                'sticky top-0 z-50 w-full transition-all duration-300',
-                scrolled ? 'bg-pure-white/95 backdrop-blur-md shadow-subtle' : 'bg-cloud-whisper'
-            )}
+            className="sticky top-0 z-50 w-full bg-pure-white/85 backdrop-blur-md border-b border-pale-ash/50 transition-all duration-200"
         >
             <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
                     {/* Logo Branding */}
                     <Link href="/" className="flex items-center space-x-2">
-                        <span className="text-2xl font-bold text-sky-connect tracking-tight">ChillToRent</span>
+                        <span className="text-xl font-bold text-sky-connect tracking-tight">ChillToRent</span>
                     </Link>
 
                     {/* Desktop Control Panel Layout */}
@@ -93,13 +90,13 @@ export function Navbar() {
                                             key={item.name}
                                             href={item.href}
                                             className={cn(
-                                                'flex items-center space-x-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
+                                                'flex items-center space-x-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200',
                                                 isActive(item.href)
-                                                    ? 'bg-sky-connect text-pure-white shadow-subtle'
-                                                    : 'text-inkwell-gray hover:bg-pale-ash/60 hover:text-charcoal-tone'
+                                                    ? 'bg-cloud-whisper text-charcoal-tone border border-pale-ash/60'
+                                                    : 'text-inkwell-gray hover:bg-cloud-whisper hover:text-charcoal-tone'
                                             )}
                                         >
-                                            <Icon className="h-4 w-4" />
+                                            <Icon className="h-3.5 w-3.5" />
                                             <span>{item.name}</span>
                                         </Link>
                                     )
@@ -170,9 +167,9 @@ export function Navbar() {
                                                 key={item.name}
                                                 href={item.href}
                                                 className={cn(
-                                                    'flex items-center space-x-3 rounded-lg px-4 py-3 text-base font-medium transition-colors',
+                                                    'flex items-center space-x-3 rounded-md px-4 py-2.5 text-sm font-medium transition-colors',
                                                     isActive(item.href)
-                                                        ? 'bg-sky-connect text-pure-white'
+                                                        ? 'bg-cloud-whisper text-charcoal-tone font-semibold border border-pale-ash/60'
                                                         : 'text-inkwell-gray hover:bg-cloud-whisper'
                                                 )}
                                             >

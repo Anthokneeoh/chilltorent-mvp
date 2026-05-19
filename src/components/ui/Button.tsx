@@ -24,23 +24,23 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ) => {
         const baseStyles = cn(
             'relative inline-flex items-center justify-center font-medium transition-all duration-200',
-            'focus:outline-none focus:ring-2 focus:ring-sky-connect/50 focus:ring-offset-2',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-connect focus-visible:ring-offset-2',
             'disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]',
             fullWidth && 'w-full'
         )
 
         const variants = {
             primary: 'bg-sky-connect text-pure-white hover:bg-sky-connect/90 shadow-subtle',
-            secondary: 'bg-cloud-whisper text-charcoal-tone hover:bg-pale-ash border border-charcoal-tone',
+            secondary: 'bg-pure-white text-charcoal-tone hover:bg-cloud-whisper border border-pale-ash',
             ghost: 'bg-transparent text-inkwell-gray hover:bg-cloud-whisper',
-            outline: 'bg-transparent border-2 border-sky-connect text-sky-connect hover:bg-sky-connect/10',
+            outline: 'bg-transparent border border-sky-connect text-sky-connect hover:bg-sky-connect/5',
             danger: 'bg-red-600 text-pure-white hover:bg-red-700 shadow-subtle',
         }
 
         const sizes = {
-            sm: 'px-4 py-2 text-sm rounded-3xl min-h-[38px]',
-            md: 'px-6 py-2.5 text-base rounded-3xl min-h-[44px]',
-            lg: 'px-8 py-3 text-lg rounded-4xl min-h-[52px]',
+            sm: 'px-3 py-1.5 text-xs rounded-md min-h-[32px]',
+            md: 'px-4 py-2 text-sm rounded-md min-h-[40px]',
+            lg: 'px-6 py-3 text-base rounded-md min-h-[48px]',
         }
 
         return (

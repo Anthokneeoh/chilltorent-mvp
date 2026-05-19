@@ -56,7 +56,7 @@ export function ListingCard({ property, className }: ListingCardProps) {
         <Link href={`/properties/${property.id}`} className="block">
             <div
                 className={cn(
-                    'group relative bg-pure-white rounded-2xl overflow-hidden shadow-subtle transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border border-pale-ash/40',
+                    'group relative bg-pure-white rounded-xl overflow-hidden shadow-subtle transition-all duration-200 hover:shadow-md border border-pale-ash/40 hover:border-light-stone',
                     className
                 )}
             >
@@ -66,19 +66,19 @@ export function ListingCard({ property, className }: ListingCardProps) {
                         src={primaryImageUrl}
                         alt={property.title}
                         fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="object-cover transition-transform duration-500 group-hover:scale-102"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         priority={false}
                     />
 
                     {/* Availability Status Badge */}
-                    <div className="absolute top-3 right-3 bg-sky-connect/95 backdrop-blur-sm text-pure-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm tracking-wide capitalize">
+                    <div className="absolute top-3 right-3 bg-sky-connect text-pure-white text-[11px] font-semibold px-2 py-0.5 rounded shadow-xs tracking-wide capitalize">
                         {property.status === 'ACTIVE' ? 'Available' : property.status?.toLowerCase()}
                     </div>
 
                     {/* Furnishing Flag Indicator */}
                     {property.is_furnished && (
-                        <div className="absolute top-3 left-3 bg-charcoal-tone/95 backdrop-blur-sm text-pure-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1">
+                        <div className="absolute top-3 left-3 bg-charcoal-tone/95 backdrop-blur-xs text-pure-white text-[11px] font-semibold px-2 py-0.5 rounded shadow-xs flex items-center gap-1">
                             <HomeIcon className="h-3 w-3" />
                             Furnished
                         </div>
@@ -104,7 +104,7 @@ export function ListingCard({ property, className }: ListingCardProps) {
                     </div>
 
                     {/* Architectural Capacity Markers */}
-                    <div className="flex items-center gap-4 mb-4 text-xs font-semibold text-charcoal-tone bg-cloud-whisper/50 px-3 py-2 rounded-xl border border-pale-ash/20">
+                    <div className="flex items-center gap-4 mb-4 text-xs font-semibold text-charcoal-tone bg-cloud-whisper/50 px-3 py-1.5 rounded-md border border-pale-ash/20">
                         <div className="flex items-center gap-1.5">
                             <Bed className="h-4 w-4 text-inkwell-gray" />
                             <span>{property.bedrooms} {property.bedrooms === 1 ? 'Bed' : 'Beds'}</span>
@@ -119,25 +119,25 @@ export function ListingCard({ property, className }: ListingCardProps) {
                     {/* Nigeria Market Context Badge Aggregations */}
                     <div className="flex flex-wrap gap-1.5 mb-4 min-h-[54px] items-start content-start">
                         {property.electricity_band && (
-                            <div className={cn('inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border', getElectricityColor(property.electricity_band))}>
+                            <div className={cn('inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded border', getElectricityColor(property.electricity_band))}>
                                 <Zap className="h-3 w-3 fill-current" />
                                 <span>{electricityMap[property.electricity_band] || `Band ${property.electricity_band}`}</span>
                             </div>
                         )}
                         {property.water_source && (
-                            <div className="inline-flex items-center gap-1 text-[11px] font-medium bg-cloud-whisper text-charcoal-tone px-2 py-0.5 rounded-md border border-pale-ash/40">
+                            <div className="inline-flex items-center gap-1 text-[11px] font-medium bg-cloud-whisper text-charcoal-tone px-2 py-0.5 rounded border border-pale-ash/40">
                                 <Droplet className="h-3 w-3 text-sky-connect fill-current" />
                                 <span>{waterMap[property.water_source] || property.water_source}</span>
                             </div>
                         )}
                         {property.security_rating && (
-                            <div className="inline-flex items-center gap-1 text-[11px] font-medium bg-cloud-whisper text-charcoal-tone px-2 py-0.5 rounded-md border border-pale-ash/40">
+                            <div className="inline-flex items-center gap-1 text-[11px] font-medium bg-cloud-whisper text-charcoal-tone px-2 py-0.5 rounded border border-pale-ash/40">
                                 <Shield className="h-3 w-3 text-indigo-600" />
                                 <span>{securityMap[property.security_rating] || property.security_rating}</span>
                             </div>
                         )}
                         {property.road_condition && (
-                            <div className="inline-flex items-center gap-1 text-[11px] font-medium bg-cloud-whisper text-charcoal-tone px-2 py-0.5 rounded-md border border-pale-ash/40">
+                            <div className="inline-flex items-center gap-1 text-[11px] font-medium bg-cloud-whisper text-charcoal-tone px-2 py-0.5 rounded border border-pale-ash/40">
                                 <Route className="h-3 w-3 text-amber-600" />
                                 <span>{roadMap[property.road_condition] || property.road_condition}</span>
                             </div>
