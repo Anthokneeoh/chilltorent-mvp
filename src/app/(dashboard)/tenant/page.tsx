@@ -59,39 +59,42 @@ export default function TenantDashboard() {
             const { data: requestsData, error: reqError } = await (supabase
                 .from('viewing_requests') as any)
                 .select(`
-          *,
-          property:property_id (title, annual_rent, lga, state),
-          landlord:landlord_id (full_name, email)
-        `)
+                    id, status, created_at, tenant_id, landlord_id, property_id,
+                    property:property_id (title, annual_rent, lga, state),
+                    landlord:landlord_id (full_name, email)
+                `)
                 .eq('tenant_id', tenantId)
                 .order('created_at', { ascending: false })
 
-            if (!reqError && requestsData) {
+            if (reqError) throw reqError
+            if (requestsData) {
                 setViewingRequests(requestsData as ViewingRequest[])
             }
 
             const { data: agreementsData, error: agrError } = await (supabase
                 .from('agreements') as any)
                 .select(`
-          *,
-          property:property_id (title),
-          landlord:landlord_id (full_name)
-        `)
+                    id, status, generated_at, pdf_url, tenant_id, landlord_id, property_id,
+                    property:property_id (title),
+                    landlord:landlord_id (full_name)
+                `)
                 .eq('tenant_id', tenantId)
                 .order('created_at', { ascending: false })
 
-            if (!agrError && agreementsData) {
+            if (agrError) throw agrError
+            if (agreementsData) {
                 setAgreements(agreementsData as Agreement[])
             }
 
             const { data: recentProps, error: recentError } = await (supabase
                 .from('properties') as any)
-                .select('*')
+                .select('id, title, lga, state, annual_rent, bedrooms, bathrooms, is_furnished, status, created_at')
                 .eq('status', 'ACTIVE')
                 .limit(6)
                 .order('created_at', { ascending: false })
 
-            if (!recentError && recentProps) {
+            if (recentError) throw recentError
+            if (recentProps) {
                 setRecentProperties(recentProps as Property[])
             }
         } catch (err) {
@@ -127,7 +130,15 @@ export default function TenantDashboard() {
         }
     }
 
-    if (isLoading || authLoading) {
+    if (authLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-cloud-whisper">
+                <Loader2 className="h-8 w-8 text-sky-connect animate-spin" />
+            </div>
+        )
+    }
+
+    if (isLoading) {
         return (
             <>
                 <Navbar />

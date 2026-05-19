@@ -54,25 +54,27 @@ export default function LandlordDashboard() {
         try {
             const { data: propertiesData, error: propsError } = await (supabase
                 .from('properties') as any)
-                .select('*')
+                .select('id, title, lga, state, property_type, annual_rent, status, created_at')
                 .eq('landlord_id', landlordId)
                 .order('created_at', { ascending: false })
 
-            if (!propsError && propertiesData) {
+            if (propsError) throw propsError
+            if (propertiesData) {
                 setProperties(propertiesData as Property[])
             }
 
             const { data: requestsData, error: reqError } = await (supabase
                 .from('viewing_requests') as any)
                 .select(`
-          *,
-          tenant:tenant_id (full_name, email),
-          property:property_id (title)
-        `)
+                    id, status, created_at, landlord_id, tenant_id, property_id,
+                    tenant:tenant_id (full_name, email),
+                    property:property_id (title)
+                `)
                 .eq('landlord_id', landlordId)
                 .order('created_at', { ascending: false })
 
-            if (!reqError && requestsData) {
+            if (reqError) throw reqError
+            if (requestsData) {
                 setViewingRequests(requestsData as ViewingRequest[])
             }
         } catch (err) {
@@ -130,7 +132,15 @@ export default function LandlordDashboard() {
         }
     }
 
-    if (isLoading || authLoading) {
+    if (authLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-cloud-whisper">
+                <Loader2 className="h-8 w-8 text-sky-connect animate-spin" />
+            </div>
+        )
+    }
+
+    if (isLoading) {
         return (
             <>
                 <Navbar />
