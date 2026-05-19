@@ -1,8 +1,6 @@
 'use client'
-
 import { PropertyFeed } from '@/components/marketplace/PropertyFeed'
 import { HomeSearchBar } from '@/components/marketplace/HomeSearchBar'
-
 export default function PropertiesCatalogPage() {
     return (
         <div className="bg-cloud-whisper min-h-screen text-charcoal-tone pb-12">
