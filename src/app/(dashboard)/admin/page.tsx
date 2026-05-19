@@ -1,5 +1,8 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
@@ -94,7 +97,7 @@ export default function AdminDashboard() {
                     setTimeout(() => reject(new Error('Admin dashboard metrics query timed out.')), 10000)
                 )
                 await Promise.race([
-                    Promise.all([fetchMetrics(), fetchRecentActivity()]),
+                    fetchAdminData(),
                     timeoutPromise
                 ])
             } catch (err) {
@@ -107,81 +110,20 @@ export default function AdminDashboard() {
         loadAdminMetricsAndActivities()
     }, [user, profile, authLoading, router])
 
-    const fetchMetrics = async () => {
+    const fetchAdminData = async () => {
         try {
-            const [
-                { count: totalUsers },
-                { count: totalLandlords },
-                { count: totalTenants },
-                { count: totalProperties },
-                { count: activeListings },
-                { count: pendingListings },
-                { count: pendingKYC },
-                { count: viewingRequests },
-                { count: agreementsGenerated },
-            ] = await Promise.all([
-                (supabase.from('profiles') as any).select('*', { count: 'exact', head: true }),
-                (supabase.from('profiles') as any).select('*', { count: 'exact', head: true }).eq('role', 'landlord'),
-                (supabase.from('profiles') as any).select('*', { count: 'exact', head: true }).eq('role', 'tenant'),
-                (supabase.from('properties') as any).select('*', { count: 'exact', head: true }),
-                (supabase.from('properties') as any).select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE'),
-                (supabase.from('properties') as any).select('*', { count: 'exact', head: true }).in('status', ['PENDING_PAYMENT', 'PENDING_APPROVAL']),
-                (supabase.from('profiles') as any).select('*', { count: 'exact', head: true }).eq('kyc_verified', false).eq('role', 'landlord'),
-                (supabase.from('viewing_requests') as any).select('*', { count: 'exact', head: true }),
-                (supabase.from('agreements') as any).select('*', { count: 'exact', head: true }),
-            ])
+            const res = await fetch('/api/admin/metrics')
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed to fetch admin metrics')
 
-            setMetrics({
-                totalUsers: totalUsers || 0,
-                totalLandlords: totalLandlords || 0,
-                totalTenants: totalTenants || 0,
-                totalProperties: totalProperties || 0,
-                activeListings: activeListings || 0,
-                pendingListings: pendingListings || 0,
-                pendingKYC: pendingKYC || 0,
-                viewingRequests: viewingRequests || 0,
-                agreementsGenerated: agreementsGenerated || 0,
-            })
+            if (data.metrics) {
+                setMetrics(data.metrics)
+            }
+            if (data.activities) {
+                setRecentActivities(data.activities)
+            }
         } catch (err) {
             console.error('Metric hydration runtime matrix error:', err)
-        }
-    }
-
-    const fetchRecentActivity = async () => {
-        try {
-            const { data: recentProperties } = await (supabase
-                .from('properties') as any)
-                .select('id, title, status, created_at, landlord:profiles!landlord_id(full_name)')
-                .order('created_at', { ascending: false })
-                .limit(5)
-
-            const { data: recentViewings } = await (supabase
-                .from('viewing_requests') as any)
-                .select('id, status, created_at, property:property_id(title), tenant:tenant_id(full_name)')
-                .order('created_at', { ascending: false })
-                .limit(5)
-
-            const compiledActivities = [
-                ...(recentProperties || []).map((p: any) => ({
-                    type: 'property',
-                    title: p.title,
-                    status: p.status,
-                    created_at: p.created_at,
-                    user: p.landlord?.full_name || 'Landlord Profile Instance',
-                })),
-                ...(recentViewings || []).map((v: any) => ({
-                    type: 'viewing',
-                    property: v.property?.title,
-                    status: v.status,
-                    created_at: v.created_at,
-                    user: v.tenant?.full_name || 'Prospect Tenant Profile',
-                })),
-            ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                .slice(0, 10)
-
-            setRecentActivities(compiledActivities)
-        } catch (err) {
-            console.error('Failed to aggregate recent platform tracking parameters:', err)
         }
     }
 

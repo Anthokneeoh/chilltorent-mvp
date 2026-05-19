@@ -43,8 +43,23 @@ export function useAuth(): UseAuthReturn {
     }
 
     const signOut = async () => {
-        await supabase.auth.signOut()
-        clearAuth()
+        try {
+            const signOutPromise = supabase.auth.signOut()
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Sign out request timed out')), 1500)
+            )
+            await Promise.race([signOutPromise, timeoutPromise]).catch(err => {
+                console.warn('Sign out request timed out, forcing local state termination:', err)
+            })
+        } catch (err) {
+            console.error('Sign out request exception:', err)
+        } finally {
+            clearAuth()
+            if (typeof window !== 'undefined') {
+                localStorage.clear()
+                sessionStorage.clear()
+            }
+        }
     }
 
     useEffect(() => {

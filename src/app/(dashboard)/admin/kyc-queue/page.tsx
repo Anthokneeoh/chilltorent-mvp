@@ -1,5 +1,8 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
@@ -63,58 +66,10 @@ function AdminKYCQueueInner() {
         setIsLoading(true)
         setPipelineError(null)
         try {
-            const { data: landlordsData, error: landlordError } = await (supabase.from('profiles') as any)
-                .select('*')
-                .eq('role', 'landlord')
-                .eq('kyc_verified', false)
-                .order('created_at', { ascending: true })
-
-            if (landlordError) throw landlordError
-
-            const typedLandlords = (landlordsData || []) as Profile[]
-
-            if (typedLandlords.length === 0) {
-                setLandlords([])
-                return
-            }
-
-            const landlordIds = typedLandlords.map((l) => l.id)
-
-            const { data: propertiesData, error: propertiesError } = await (supabase.from('properties') as any)
-                .select('id, title, ownership_doc_url, landlord_id')
-                .in('landlord_id', landlordIds)
-                .not('ownership_doc_url', 'is', null)
-
-            if (propertiesError) throw propertiesError
-
-            const typedProperties = (propertiesData || []) as Array<{
-                id: string
-                title: string
-                ownership_doc_url: string | null
-                landlord_id: string
-            }>
-
-            // Group properties by landlord_id for instant O(1) in-memory lookups
-            const propertiesMap: Record<string, Pick<Property, 'id' | 'title' | 'ownership_doc_url'>[]> = {}
-
-            typedProperties.forEach((prop) => {
-                if (!propertiesMap[prop.landlord_id]) {
-                    propertiesMap[prop.landlord_id] = []
-                }
-                propertiesMap[prop.landlord_id].push({
-                    id: prop.id,
-                    title: prop.title,
-                    ownership_doc_url: prop.ownership_doc_url,
-                })
-            })
-
-            // Merge profiles and property verification data structures locally
-            const compiledKYCQueue: LandlordWithDocs[] = typedLandlords.map((landlord) => ({
-                ...landlord,
-                properties: propertiesMap[landlord.id] || [],
-            }))
-
-            setLandlords(compiledKYCQueue)
+            const res = await fetch('/api/admin/kyc')
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed to fetch KYC queue')
+            setLandlords(data.landlords || [])
         } catch (err: any) {
             console.error('Fatal document metrics compilation breakdown:', err)
             setPipelineError(err.message || 'Failed to resolve database collection synchronization values.')
@@ -134,7 +89,9 @@ function AdminKYCQueueInner() {
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed to approve account')
 
-            await fetchPendingKYC()
+            // Remove approved user from queue immediately
+            setLandlords(prev => prev.filter(item => item.id !== landlordId))
+            alert('KYC approved successfully')
         } catch (err: any) {
             console.error('KYC confirmation state mutation crash:', err)
             alert(err.message || 'Failed to authorize verification parameters. Please retry.')
@@ -161,7 +118,9 @@ function AdminKYCQueueInner() {
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed to decline account')
 
-            await fetchPendingKYC()
+            // Remove rejected user from queue immediately
+            setLandlords(prev => prev.filter(item => item.id !== landlordId))
+            alert('KYC rejected successfully')
         } catch (err: any) {
             console.error('KYC rejection mutation crash:', err)
             alert(err.message || 'Failed to reject KYC. Please retry.')

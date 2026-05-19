@@ -1,5 +1,8 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
@@ -63,49 +66,10 @@ function AdminListingsQueueInner() {
         setIsLoading(true)
         setQueueError(null)
         try {
-            // 1. Hydrate multi-state property structures natively (explicit column selection list)
-            const { data: listingsData, error: listingsError } = await (supabase.from('properties') as any)
-                .select(`
-                    id, title, status, created_at, address, lga, state, annual_rent, total_package, bedrooms, bathrooms, property_type, is_furnished, electricity_band, water_source, security_rating, road_condition, landlord_id,
-                    landlord:landlord_id (full_name, email, kyc_verified)
-                `)
-                .in('status', ['PENDING_PAYMENT', 'PENDING_APPROVAL'])
-                .order('created_at', { ascending: true })
-
-            if (listingsError) throw listingsError
-
-            if (!listingsData || listingsData.length === 0) {
-                setProperties([])
-                return
-            }
-
-            const propertyIds = listingsData.map((p: any) => p.id)
-
-            // 2. Fetch structural imagery lists
-            const { data: mediaData, error: mediaError } = await (supabase.from('property_media') as any)
-                .select('property_id, url, media_type, is_thumbnail')
-                .in('property_id', propertyIds)
-                .order('sort_order', { ascending: true })
-
-            if (mediaError) throw mediaError
-
-            const mediaMap: Record<string, any[]> = {}
-            mediaData?.forEach((item: any) => {
-                if (!mediaMap[item.property_id]) {
-                    mediaMap[item.property_id] = []
-                }
-                if (mediaMap[item.property_id].length === 0) {
-                    mediaMap[item.property_id].push(item)
-                }
-            })
-
-            // 3. Compile rich operational structures locally
-            const compiledQueue: Property[] = listingsData.map((property: any) => ({
-                ...property,
-                media: mediaMap[property.id] || [],
-            }))
-
-            setProperties(compiledQueue)
+            const res = await fetch('/api/admin/listings')
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed to fetch listings queue')
+            setProperties(data.listings || [])
         } catch (err: any) {
             console.error('Failed to compile verification listing queues safely:', err)
             setQueueError(err.message || 'Failed to establish synchronization hooks to asset entities ledger.')
@@ -117,66 +81,73 @@ function AdminListingsQueueInner() {
     const handleApprove = async (propertyId: string) => {
         setProcessingId(propertyId)
         try {
-            const { error } = await (supabase.from('properties') as any)
-                .update({ status: 'ACTIVE', updated_at: new Date().toISOString() })
-                .eq('id', propertyId)
+            const res = await fetch('/api/admin/listings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ propertyId, action: 'approve' }),
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed to approve listing')
 
-            if (error) throw error
-
-            const property = properties.find(p => p.id === propertyId)
-            if (property?.landlord?.email) {
+            if (data.email) {
                 fetch('/api/emails', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        to: property.landlord.email,
+                        to: data.email,
                         type: 'viewing_request',
-                        data: { propertyTitle: property.title, tenantName: 'Admin Authority' },
+                        data: { propertyTitle: data.title, tenantName: 'Admin Authority' },
                     }),
                 }).catch(console.error)
             }
 
-            await fetchPendingListings()
-        } catch (err) {
+            // Remove approved property from queue immediately (optimistic update)
+            setProperties(prev => prev.filter(item => item.id !== propertyId))
+            alert('Listing approved successfully')
+        } catch (err: any) {
             console.error('Listing publication status update failure:', err)
-            alert('Failed to authorize publication. Please retry.')
+            alert(err.message || 'Failed to authorize publication. Please retry.')
         } finally {
             setProcessingId(null)
         }
     }
 
     const handleReject = async (propertyId: string) => {
-        setProcessingId(propertyId)
-        const reason = prompt('Provide the dynamic rejection context reason to dispatch back to the lessor profile:')
-        if (!reason) {
-            setProcessingId(null)
+        const reason = prompt('Provide the reason for declining this property listing:')
+        if (reason === null) return // User cancelled prompt
+        if (!reason.trim()) {
+            alert('A rejection reason is required.')
             return
         }
 
+        setProcessingId(propertyId)
         try {
-            const { error } = await (supabase.from('properties') as any)
-                .update({ status: 'REJECTED', updated_at: new Date().toISOString() })
-                .eq('id', propertyId)
+            const res = await fetch('/api/admin/listings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ propertyId, action: 'reject', reason }),
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed to decline listing')
 
-            if (error) throw error
-
-            const property = properties.find(p => p.id === propertyId)
-            if (property?.landlord?.email) {
+            if (data.email) {
                 fetch('/api/emails', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        to: property.landlord.email,
+                        to: data.email,
                         type: 'viewing_request',
-                        data: { propertyTitle: property.title, tenantName: 'Admin Review Team', rejectionReason: reason },
+                        data: { propertyTitle: data.title, tenantName: 'Admin Review Team', rejectionReason: reason },
                     }),
                 }).catch(console.error)
             }
 
-            await fetchPendingListings()
-        } catch (err) {
+            // Remove rejected property from queue immediately (optimistic update)
+            setProperties(prev => prev.filter(item => item.id !== propertyId))
+            alert('Listing declined successfully')
+        } catch (err: any) {
             console.error('Listing exclusion verification exception:', err)
-            alert('Could not log exclusion state parameter arrays.')
+            alert(err.message || 'Could not decline listing.')
         } finally {
             setProcessingId(null)
         }

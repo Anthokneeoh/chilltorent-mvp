@@ -31,7 +31,7 @@ interface NavItem {
 export function Sidebar() {
     const pathname = usePathname()
     const router = useRouter()
-    const { user, profile } = useAuth()
+    const { user, profile, signOut } = useAuth()
     const [isLoggingOut, setIsLoggingOut] = useState(false)
 
     const checkActiveState = (href: string) => {
@@ -88,13 +88,11 @@ export function Sidebar() {
         if (isLoggingOut) return
         setIsLoggingOut(true)
         try {
-            const { error } = await supabase.auth.signOut()
-            if (error) throw error
+            await signOut()
             router.refresh()
             router.push('/login')
         } catch (err) {
             console.error('Sign out execution tracking exception instance:', err)
-            alert('Failed to cleanly terminate auth tokens. Please refresh and retry.')
         } finally {
             setIsLoggingOut(false)
         }

@@ -117,3 +117,72 @@ export async function POST(request: Request) {
         )
     }
 }
+
+export async function GET() {
+    try {
+        const isAdmin = await hasRole('admin')
+        if (!isAdmin) {
+            return NextResponse.json(
+                { error: 'Forbidden: Only administrators can query KYC queue' },
+                { status: 403 }
+            )
+        }
+
+        const supabaseAdmin = await createAdminSupabaseClient()
+
+        // Fetch landlords needing KYC verification
+        const { data: landlordsData, error: landlordError } = await (supabaseAdmin
+            .from('profiles') as any)
+            .select('id, role, full_name, email, phone, kyc_verified, created_at')
+            .eq('role', 'landlord')
+            .eq('kyc_verified', false)
+            .order('created_at', { ascending: true })
+
+        if (landlordError) throw landlordError
+
+        const landlords = landlordsData || []
+        if (landlords.length === 0) {
+            return NextResponse.json({ landlords: [] })
+        }
+
+        const landlordIds = landlords.map((l: any) => l.id)
+
+        // Fetch properties with ownership docs for these landlords
+        const { data: propertiesData, error: propertiesError } = await (supabaseAdmin
+            .from('properties') as any)
+            .select('id, title, ownership_doc_url, landlord_id')
+            .in('landlord_id', landlordIds)
+            .not('ownership_doc_url', 'is', null)
+
+        if (propertiesError) throw propertiesError
+
+        const properties = propertiesData || []
+
+        // Group properties by landlord_id
+        const propertiesMap: Record<string, any[]> = {}
+        properties.forEach((prop: any) => {
+            if (!propertiesMap[prop.landlord_id]) {
+                propertiesMap[prop.landlord_id] = []
+            }
+            propertiesMap[prop.landlord_id].push({
+                id: prop.id,
+                title: prop.title,
+                ownership_doc_url: prop.ownership_doc_url,
+            })
+        })
+
+        // Combine profile and properties
+        const landlordsWithDocs = landlords.map((l: any) => ({
+            ...l,
+            properties: propertiesMap[l.id] || [],
+        }))
+
+        return NextResponse.json({ landlords: landlordsWithDocs })
+    } catch (err: any) {
+        console.error('Fatal KYC Queue GET Error:', err)
+        return NextResponse.json(
+            { error: err.message || 'Internal server boundary crash during KYC fetch' },
+            { status: 500 }
+        )
+    }
+}
