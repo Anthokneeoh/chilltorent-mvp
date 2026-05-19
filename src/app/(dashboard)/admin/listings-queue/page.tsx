@@ -88,18 +88,6 @@ function AdminListingsQueueInner() {
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed to approve listing')
 
-            if (data.email) {
-                fetch('/api/emails', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        to: data.email,
-                        type: 'viewing_request',
-                        data: { propertyTitle: data.title, tenantName: 'Admin Authority' },
-                    }),
-                }).catch(console.error)
-            }
-
             // Remove approved property from queue immediately (optimistic update)
             setProperties(prev => prev.filter(item => item.id !== propertyId))
             alert('Listing approved successfully')
@@ -128,18 +116,6 @@ function AdminListingsQueueInner() {
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed to decline listing')
-
-            if (data.email) {
-                fetch('/api/emails', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        to: data.email,
-                        type: 'viewing_request',
-                        data: { propertyTitle: data.title, tenantName: 'Admin Review Team', rejectionReason: reason },
-                    }),
-                }).catch(console.error)
-            }
 
             // Remove rejected property from queue immediately (optimistic update)
             setProperties(prev => prev.filter(item => item.id !== propertyId))
