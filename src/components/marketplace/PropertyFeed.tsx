@@ -100,7 +100,7 @@ function PropertyFeedInner() {
                     setProperties(formattedData)
                 }
             } catch (error) {
-                console.error("Supabase Fetch Error:", error)
+                console.error("Supabase Fetch Error Details:", JSON.stringify(error, null, 2))
                 setProperties(FEATURED_MOCK_PROPERTIES)
                 setIsUsingMockData(true)
             } finally {
