@@ -3,24 +3,15 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, Home, Search, MessageCircle, FileText, User, LogOut, PlusSquare, Building } from 'lucide-react'
+import { Menu, X, Home, Search, MessageCircle, FileText, User, LogOut, PlusSquare, Building, CheckSquare, Users, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils/formatters'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/Button'
 
 export function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-    const [scrolled, setScrolled] = useState(false)
     const pathname = usePathname()
     const { user, profile, signOut, isLoading } = useAuth()
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 10)
-        }
-        window.addEventListener('scroll', handleScroll)
-        return () => window.removeEventListener('scroll', handleScroll)
-    }, [])
 
     useEffect(() => {
         setIsMobileMenuOpen(false)
@@ -33,7 +24,7 @@ export function Navbar() {
         return pathname === path || pathname.startsWith(path + '/')
     }
 
-    const getNavItems = () => {
+    const getMobileNavItems = () => {
         if (!user || !profile) return []
 
         const role = profile.role
@@ -41,34 +32,34 @@ export function Navbar() {
 
         if (role === 'tenant') {
             baseItems.push(
-                { name: 'Home', href: '/', icon: Home },
-                { name: 'Search', href: '/properties', icon: Search },
-                { name: 'Chat', href: '/tenant/chat', icon: MessageCircle },
+                { name: 'Dashboard', href: '/tenant', icon: Home },
+                { name: 'Find Homes', href: '/properties', icon: Search },
+                { name: 'Messages', href: '/tenant/chat', icon: MessageCircle },
                 { name: 'Agreements', href: '/tenant/agreements', icon: FileText }
             )
         } else if (role === 'landlord') {
             baseItems.push(
                 { name: 'Dashboard', href: '/landlord', icon: Home },
-                { name: 'My Listings', href: '/landlord', icon: Building },
+                { name: 'My Listings', href: '/landlord/properties', icon: Building },
                 { name: 'Add Property', href: '/landlord/properties/new', icon: PlusSquare },
-                { name: 'Chat', href: '/landlord/chat', icon: MessageCircle }
+                { name: 'Messages', href: '/landlord/chat', icon: MessageCircle }
             )
         } else if (role === 'admin') {
             baseItems.push(
-                { name: 'Admin Hub', href: '/admin', icon: Home },
+                { name: 'Overview', href: '/admin', icon: Home },
                 { name: 'KYC Queue', href: '/admin/kyc-queue', icon: User },
-                { name: 'Listings Queue', href: '/admin/listings-queue', icon: FileText }
+                { name: 'Listing Approvals', href: '/admin/listings-queue', icon: CheckSquare },
+                { name: 'All Users', href: '/admin/users', icon: Users },
+                { name: 'Settings', href: '/admin/settings', icon: Settings }
             )
         }
         return baseItems
     }
 
-    const navItems = getNavItems()
+    const mobileNavItems = getMobileNavItems()
 
     return (
-        <header
-            className="sticky top-0 z-50 w-full bg-pure-white/85 backdrop-blur-md border-b border-pale-ash/50 transition-all duration-200"
-        >
+        <header className="sticky top-0 z-50 w-full bg-pure-white/85 backdrop-blur-md border-b border-pale-ash/50 transition-all duration-200">
             <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
                     {/* Logo Branding */}
@@ -76,47 +67,24 @@ export function Navbar() {
                         <span className="text-xl font-bold text-sky-connect tracking-tight">ChillToRent</span>
                     </Link>
 
-                    {/* Desktop Control Panel Layout */}
+                    {/* Desktop Workspace Profiles Panel (Stripped of inner links) */}
                     <div className="hidden md:flex md:items-center md:space-x-6">
                         {isLoading ? (
-                            // Silent shell block to prevent layout jumping while parsing credentials
                             <div className="h-8 w-32 animate-pulse rounded-lg bg-pale-ash/50" />
                         ) : user && profile ? (
-                            <>
-                                {navItems.map((item) => {
-                                    const Icon = item.icon
-                                    return (
-                                        <Link
-                                            key={item.name}
-                                            href={item.href}
-                                            className={cn(
-                                                'flex items-center space-x-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200',
-                                                isActive(item.href)
-                                                    ? 'bg-cloud-whisper text-charcoal-tone border border-pale-ash/60'
-                                                    : 'text-inkwell-gray hover:bg-cloud-whisper hover:text-charcoal-tone'
-                                            )}
-                                        >
-                                            <Icon className="h-3.5 w-3.5" />
-                                            <span>{item.name}</span>
-                                        </Link>
-                                    )
-                                })}
-
+                            <div className="flex items-center space-x-4">
+                                <span className="text-sm font-semibold text-charcoal-tone bg-cloud-whisper border border-pale-ash/40 px-3 py-1.5 rounded-full">
+                                    {profile.full_name?.split(' ')[0] || 'User'} ({profile.role})
+                                </span>
                                 <div className="h-4 w-[1px] bg-pale-ash" />
-
-                                <div className="flex items-center space-x-3">
-                                    <span className="text-sm font-medium text-charcoal-tone">
-                                        {profile.full_name?.split(' ')[0] || 'User'}
-                                    </span>
-                                    <button
-                                        onClick={() => signOut()}
-                                        className="rounded-lg p-2 text-inkwell-gray hover:bg-red-50 hover:text-red-600 transition-colors"
-                                        aria-label="Sign Out Session"
-                                    >
-                                        <LogOut className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </>
+                                <button
+                                    onClick={() => signOut()}
+                                    className="rounded-lg p-2 text-inkwell-gray hover:bg-red-50 hover:text-red-600 transition-colors"
+                                    aria-label="Sign Out Session"
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                </button>
+                            </div>
                         ) : (
                             <div className="flex items-center space-x-3">
                                 <Link href="/login">
@@ -160,7 +128,7 @@ export function Navbar() {
                                         </span>
                                     </div>
 
-                                    {navItems.map((item) => {
+                                    {mobileNavItems.map((item) => {
                                         const Icon = item.icon
                                         return (
                                             <Link

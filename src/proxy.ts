@@ -17,7 +17,7 @@ export async function proxy(request: NextRequest) {
                     return request.cookies.getAll()
                 },
                 setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) =>
+                    cookiesToSet.forEach(({ name, value }) =>
                         request.cookies.set(name, value)
                     )
                     response = NextResponse.next({
@@ -34,23 +34,25 @@ export async function proxy(request: NextRequest) {
     )
 
     const { data: { user } } = await supabase.auth.getUser()
+    const { pathname } = request.nextUrl
 
-    // Public routes (no auth required)
+    if (pathname.startsWith('/api/') || pathname.includes('.')) {
+        return response
+    }
     const isPublicRoute =
-        request.nextUrl.pathname === '/' ||
-        request.nextUrl.pathname.startsWith('/properties/') ||
-        request.nextUrl.pathname.startsWith('/login') ||
-        request.nextUrl.pathname.startsWith('/signup') ||
-        request.nextUrl.pathname.startsWith('/api/auth') ||
-        request.nextUrl.pathname === '/api/health'
+        pathname === '/' ||
+        pathname === '/properties' ||
+        pathname.startsWith('/properties/') ||
+        pathname === '/login' ||
+        pathname === '/signup'
 
     if (!user && !isPublicRoute) {
         const redirectUrl = new URL('/login', request.url)
-        redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
+        redirectUrl.searchParams.set('redirectTo', pathname)
         return NextResponse.redirect(redirectUrl)
     }
 
-    if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
+    if (user && (pathname === '/login' || pathname === '/signup')) {
         const { data: profile } = await supabase
             .from('profiles')
             .select('role')
@@ -59,14 +61,13 @@ export async function proxy(request: NextRequest) {
 
         const role = profile?.role || 'tenant'
         const dashboardMap = {
-            tenant: '/tenant',
+            tenant: '/tenant/chat', // Send straight to functional routes to avoid root loop
             landlord: '/landlord',
-            admin: '/admin',
+            admin: '/admin/users',
         }
-        return NextResponse.redirect(new URL(dashboardMap[role as keyof typeof dashboardMap], request.url))
+        return NextResponse.redirect(new URL(dashboardMap[role as keyof typeof dashboardMap] || '/', request.url))
     }
 
-    // Role-based route protection
     if (user) {
         const { data: profile } = await supabase
             .from('profiles')
@@ -76,14 +77,18 @@ export async function proxy(request: NextRequest) {
 
         const role = profile?.role
 
-        if (request.nextUrl.pathname.startsWith('/admin') && role !== 'admin') {
-            return NextResponse.redirect(new URL('/', request.url))
+        if (!profile && isPublicRoute) {
+            return response
         }
-        if (request.nextUrl.pathname.startsWith('/landlord') && role !== 'landlord') {
-            return NextResponse.redirect(new URL('/', request.url))
+
+        if (pathname.startsWith('/admin') && role !== 'admin') {
+            return NextResponse.redirect(new URL(role ? `/${role}` : '/', request.url))
         }
-        if (request.nextUrl.pathname.startsWith('/tenant') && role !== 'tenant') {
-            return NextResponse.redirect(new URL('/', request.url))
+        if (pathname.startsWith('/landlord') && role !== 'landlord') {
+            return NextResponse.redirect(new URL(role ? `/${role}` : '/', request.url))
+        }
+        if (pathname.startsWith('/tenant') && role !== 'tenant') {
+            return NextResponse.redirect(new URL(role ? `/${role}` : '/', request.url))
         }
     }
 
