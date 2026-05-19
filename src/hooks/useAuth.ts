@@ -65,8 +65,38 @@ export function useAuth(): UseAuthReturn {
     useEffect(() => {
         let isMounted = true
 
+        const initializeAuth = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession()
+                const currentUser = session?.user ?? null
+
+                if (!isMounted) return
+                setUser(currentUser)
+
+                if (currentUser) {
+                    const profileData = await fetchProfile(currentUser.id)
+                    if (isMounted) setProfile(profileData)
+                } else {
+                    setProfile(null)
+                }
+            } catch (err) {
+                console.error('Failed to initialize session:', err)
+            } finally {
+                if (isMounted) setIsLoading(false)
+            }
+        }
+
+        initializeAuth()
+
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
+                if (event === 'SIGNED_OUT') {
+                    setUser(null)
+                    setProfile(null)
+                    if (isMounted) setIsLoading(false)
+                    return
+                }
+
                 const currentUser = session?.user ?? null
 
                 if (!isMounted) return

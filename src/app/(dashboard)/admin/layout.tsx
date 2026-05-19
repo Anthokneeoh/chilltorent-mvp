@@ -1,7 +1,7 @@
-import { ReactNode } from 'react'
-
 export const dynamic = 'force-dynamic'
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
-    return <>{children}</>
+import AdminAuthGuard from './AdminAuthGuard'
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return <AdminAuthGuard>{children}</AdminAuthGuard>
 }
