@@ -132,47 +132,67 @@ export async function POST(request: Request) {
 
                     const html = action === 'approve'
                         ? `
-                            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-                                <h2 style="color: #10b981; margin-bottom: 4px;">ChillToRent</h2>
-                                <h3 style="color: #0f172a; margin-top: 0;">Listing Approved</h3>
-                                <p style="color: #334155; font-size: 16px;">Hello <strong>${recipientName}</strong>,</p>
-                                <p style="color: #475569; font-size: 15px; line-height: 1.6;">
+                            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; max-width: 480px; margin: 20px auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+                                    <tr>
+                                        <td style="padding: 0;">
+                                            <span style="font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -0.025em;">Chill<span style="color: #0284c7;">ToRent</span></span>
+                                        </td>
+                                        <td style="text-align: right; padding: 0; vertical-align: middle;">
+                                            <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.05em; color: #16a34a; background-color: #f0fdf4; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;">LISTING DEPLOYED</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <p style="color: #0f172a; font-size: 16px; font-weight: 700; margin: 0 0 12px 0;">Listing Approved</p>
+                                <p style="color: #334155; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">Hello <strong>${recipientName}</strong>,</p>
+                                <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
                                     We are pleased to inform you that your property listing for <strong>"${property.title}"</strong> has been approved and is now active on our marketplace.
                                 </p>
-                                <p style="color: #475569; font-size: 15px; line-height: 1.6;">
+                                <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
                                     Prospective tenants can now view your listing, schedule tours, and contact you directly.
                                 </p>
-                                <p style="color: #475569; font-size: 15px; line-height: 1.6; font-weight: bold;">
+                                <p style="color: #0f172a; font-size: 14px; line-height: 1.6; font-weight: bold; margin: 16px 0 8px 0;">
                                     Next Steps:
                                 </p>
-                                <ul style="color: #475569; font-size: 15px; line-height: 1.6;">
-                                    <li>Monitor your messages for viewing requests.</li>
-                                    <li>Keep your listing details up to date in the landlord hub.</li>
+                                <ul style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0; padding-left: 20px;">
+                                    <li style="margin-bottom: 6px;">Monitor your messages for viewing requests.</li>
+                                    <li style="margin-bottom: 6px;">Keep your listing details up to date in the landlord hub.</li>
                                 </ul>
-                                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/landlord/properties" style="background: #0061ef; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-top: 16px;">Manage Your Properties</a>
+                                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/landlord/properties" style="background: #0284c7; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; display: inline-block; text-align: center;">Manage Your Properties</a>
                             </div>
                         `
                         : `
-                            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-                                <h2 style="color: #ef4444; margin-bottom: 4px;">ChillToRent</h2>
-                                <h3 style="color: #0f172a; margin-top: 0;">Listing Update Required</h3>
-                                <p style="color: #334155; font-size: 16px;">Hello <strong>${recipientName}</strong>,</p>
-                                <p style="color: #475569; font-size: 15px; line-height: 1.6;">
+                            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; max-width: 480px; margin: 20px auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+                                    <tr>
+                                        <td style="padding: 0;">
+                                            <span style="font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -0.025em;">Chill<span style="color: #0284c7;">ToRent</span></span>
+                                        </td>
+                                        <td style="text-align: right; padding: 0; vertical-align: middle;">
+                                            <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.05em; color: #dc2626; background-color: #fef2f2; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;">ACTION REQUIRED</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <p style="color: #0f172a; font-size: 16px; font-weight: 700; margin: 0 0 12px 0;">Listing Update Required</p>
+                                <p style="color: #334155; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">Hello <strong>${recipientName}</strong>,</p>
+                                <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
                                     Thank you for submitting your property listing for <strong>"${property.title}"</strong>. Unfortunately, we could not approve your listing in its current state.
                                 </p>
                                 ${reason ? `
-                                <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; margin: 16px 0; border-radius: 4px;">
-                                    <p style="color: #991b1b; font-size: 14px; font-weight: bold; margin: 0 0 6px 0;">Feedback from Review Team:</p>
-                                    <p style="color: #7f1d1d; font-size: 14px; margin: 0; font-family: monospace; white-space: pre-wrap;">${reason}</p>
+                                <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; margin: 16px 0; border-radius: 8px;">
+                                    <p style="color: #991b1b; font-size: 13px; font-weight: bold; margin: 0 0 6px 0;">Feedback from Review Team:</p>
+                                    <p style="color: #7f1d1d; font-size: 13px; margin: 0; font-family: monospace; white-space: pre-wrap;">${reason}</p>
                                 </div>
                                 ` : ''}
-                                <p style="color: #475569; font-size: 15px; line-height: 1.6; font-weight: bold;">
+                                <p style="color: #0f172a; font-size: 14px; line-height: 1.6; font-weight: bold; margin: 16px 0 8px 0;">
                                     Next Steps:
                                 </p>
-                                <p style="color: #475569; font-size: 15px; line-height: 1.6;">
+                                <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
                                     Please log in to your landlord portal, update the listing with the requested changes or correct documentation, and resubmit it for review.
                                 </p>
-                                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/landlord/properties" style="background: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-top: 16px;">Review Listing Details</a>
+                                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/landlord/properties" style="background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; display: inline-block; text-align: center;">Review Listing Details</a>
                             </div>
                         `
 

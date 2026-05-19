@@ -65,37 +65,57 @@ export async function POST(request: Request) {
             
             const html = newVerificationState
                 ? `
-                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-                        <h2 style="color: #10b981; margin-bottom: 4px;">ChillToRent</h2>
-                        <h3 style="color: #0f172a; margin-top: 0;">Verification Status Approved</h3>
-                        <p style="color: #334155; font-size: 16px;">Hello <strong>${landlord.full_name}</strong>,</p>
-                        <p style="color: #475569; font-size: 15px; line-height: 1.6;">
+                    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; max-width: 480px; margin: 20px auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+                            <tr>
+                                <td style="padding: 0;">
+                                    <span style="font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -0.025em;">Chill<span style="color: #0284c7;">ToRent</span></span>
+                                </td>
+                                <td style="text-align: right; padding: 0; vertical-align: middle;">
+                                    <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.05em; color: #0284c7; background-color: #e0f2fe; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;">KYC VERIFIED</span>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <p style="color: #0f172a; font-size: 16px; font-weight: 700; margin: 0 0 12px 0;">Verification Status Approved</p>
+                        <p style="color: #334155; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">Hello <strong>${landlord.full_name}</strong>,</p>
+                        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
                             We are pleased to inform you that your landlord identity verification (KYC) has been successfully audited and approved.
                         </p>
-                        <p style="color: #475569; font-size: 15px; line-height: 1.6;">
+                        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
                             You can now list and publish properties to the active public marketplace.
                         </p>
-                        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/landlord" style="background: #0061ef; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-top: 16px;">Go to Landlord Hub</a>
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/landlord" style="background: #0284c7; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; display: inline-block; text-align: center;">Go to Landlord Hub</a>
                     </div>
                 `
                 : `
-                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-                        <h2 style="color: #ef4444; margin-bottom: 4px;">ChillToRent</h2>
-                        <h3 style="color: #0f172a; margin-top: 0;">Verification Update</h3>
-                        <p style="color: #334155; font-size: 16px;">Hello <strong>${landlord.full_name}</strong>,</p>
-                        <p style="color: #475569; font-size: 15px; line-height: 1.6;">
+                    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; max-width: 480px; margin: 20px auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+                            <tr>
+                                <td style="padding: 0;">
+                                    <span style="font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -0.025em;">Chill<span style="color: #0284c7;">ToRent</span></span>
+                                </td>
+                                <td style="text-align: right; padding: 0; vertical-align: middle;">
+                                    <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.05em; color: #dc2626; background-color: #fef2f2; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;">KYC DECLINED</span>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <p style="color: #0f172a; font-size: 16px; font-weight: 700; margin: 0 0 12px 0;">Verification Update Required</p>
+                        <p style="color: #334155; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">Hello <strong>${landlord.full_name}</strong>,</p>
+                        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
                             We have reviewed your verification details and unfortunately we could not verify your identity at this time.
                         </p>
                         ${reason ? `
-                        <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; margin: 16px 0; border-radius: 4px;">
-                            <p style="color: #991b1b; font-size: 14px; font-weight: bold; margin: 0 0 6px 0;">Feedback from Review Team:</p>
-                            <p style="color: #7f1d1d; font-size: 14px; margin: 0; font-family: monospace; white-space: pre-wrap;">${reason}</p>
+                        <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; margin: 16px 0; border-radius: 8px;">
+                            <p style="color: #991b1b; font-size: 13px; font-weight: bold; margin: 0 0 6px 0;">Feedback from Review Team:</p>
+                            <p style="color: #7f1d1d; font-size: 13px; margin: 0; font-family: monospace; white-space: pre-wrap;">${reason}</p>
                         </div>
                         ` : ''}
-                        <p style="color: #475569; font-size: 15px; line-height: 1.6;">
+                        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
                             Please re-verify your documents in the dashboard, or contact support if you have any questions.
                         </p>
-                        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/landlord" style="background: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-top: 16px;">Review Verification Details</a>
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/landlord" style="background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; display: inline-block; text-align: center;">Review Verification Details</a>
                     </div>
                 `
 
