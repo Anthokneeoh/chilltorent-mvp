@@ -34,6 +34,7 @@ export default function SignupPage() {
         setError(null)
 
         try {
+            // 1. Core verification check: intercept duplicate email constraints early
             const { data: existingUser } = await supabase
                 .from('profiles')
                 .select('email')
@@ -46,6 +47,22 @@ export default function SignupPage() {
                 return
             }
 
+            // 2. Custom constraint validation: verify duplicate phone records before running auth triggers
+            if (sanitizedPhone) {
+                const { data: existingPhone } = await supabase
+                    .from('profiles')
+                    .select('phone')
+                    .eq('phone', sanitizedPhone)
+                    .maybeSingle()
+
+                if (existingPhone) {
+                    setError('This phone number is already linked to another account. Please use a unique number.')
+                    setIsLoading(false)
+                    return
+                }
+            }
+
+            // 3. Complete authentication registration payload dispatch
             const { error: authError } = await supabase.auth.signInWithOtp({
                 email: sanitizedEmail,
                 options: {
