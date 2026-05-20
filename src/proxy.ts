@@ -29,7 +29,28 @@ export async function proxy(request: NextRequest) {
         }
     )
 
-    const { data: { user } } = await supabase.auth.getUser()
+    let user = null
+    try {
+        const { data, error } = await supabase.auth.getUser()
+
+        if (error) {
+            if (error.code === 'refresh_token_not_found' || error.status === 400) {
+                console.warn('[MIDDLEWARE] Stale session detected. Flushing cookies and bouncing to login.')
+                const redirectUrl = new URL('/login', request.url)
+                const cleanResponse = NextResponse.redirect(redirectUrl)
+
+                cleanResponse.cookies.delete('sb-access-token')
+                cleanResponse.cookies.delete('sb-refresh-token')
+                return cleanResponse
+            }
+        }
+        user = data?.user ?? null
+    } catch (catchErr) {
+        console.error('[MIDDLEWARE EXCEPTION] Unexpected crash during user initialization:', catchErr)
+        const redirectUrl = new URL('/login', request.url)
+        return NextResponse.redirect(redirectUrl)
+    }
+
     const { pathname } = request.nextUrl
 
     if (pathname.startsWith('/api/') || pathname.includes('.')) {

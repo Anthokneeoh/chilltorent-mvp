@@ -34,12 +34,10 @@ export default function TenantDashboard() {
 
     useEffect(() => {
         if (authLoading) return
-        if (!user) {
-            router.push('/login')
-            return
-        }
+
 
         const hydrate = async () => {
+            if (!user?.id) return
             try {
                 const timeoutPromise = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Tenant dashboard metrics query timed out.')), 10000)

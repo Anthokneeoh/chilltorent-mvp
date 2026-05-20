@@ -11,9 +11,8 @@ export async function GET() {
             )
         }
 
-        const supabaseAdmin = await createAdminSupabaseClient()
+        const supabaseAdmin = createAdminSupabaseClient()
 
-        // Fetch metrics using the privileged admin client
         const [
             { count: totalUsers },
             { count: totalLandlords },
@@ -48,7 +47,6 @@ export async function GET() {
             agreementsGenerated: agreementsGenerated || 0,
         }
 
-        // Fetch recent activity in parallel
         const [recentPropertiesResult, recentViewingsResult] = await Promise.all([
             (supabaseAdmin.from('properties') as any)
                 .select('id, title, status, created_at, landlord:profiles!landlord_id(full_name)')

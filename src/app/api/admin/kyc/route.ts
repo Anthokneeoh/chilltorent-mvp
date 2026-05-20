@@ -4,7 +4,6 @@ import { sendEmail } from '@/lib/resend'
 
 export async function POST(request: Request) {
     try {
-        // 1. Enforce strict admin authorization boundary check
         const isAdmin = await hasRole('admin')
         if (!isAdmin) {
             return NextResponse.json(
@@ -23,10 +22,8 @@ export async function POST(request: Request) {
             )
         }
 
-        // 2. Instantiate the privileged admin client using service role credentials
-        const supabaseAdmin = await createAdminSupabaseClient()
+        const supabaseAdmin = createAdminSupabaseClient()
 
-        // Fetch landlord profile to retrieve full name and email for notification
         const { data: landlord, error: fetchError } = await (supabaseAdmin
             .from('profiles') as any)
             .select('full_name, email')
@@ -42,7 +39,6 @@ export async function POST(request: Request) {
 
         const newVerificationState = action === 'approve'
 
-        // 3. Commit mutation server-side
         const { error: updateError } = await (supabaseAdmin
             .from('profiles') as any)
             .update({ kyc_verified: newVerificationState })
@@ -50,19 +46,17 @@ export async function POST(request: Request) {
 
         if (updateError) throw updateError
 
-        // Log transaction metrics securely
         if (action === 'reject') {
             console.log(`[KYC DEACTIVATION REGISTERED] Landlord: ${landlordId}. Reason: ${reason || 'No specific reason provided.'}`)
         } else {
             console.log(`[KYC APPROVAL REGISTERED] Landlord: ${landlordId}`)
         }
 
-        // 4. Dispatch notification email using Resend
         try {
-            const subject = newVerificationState 
+            const subject = newVerificationState
                 ? 'Your ChillToRent Landlord KYC has been Approved!'
                 : 'Action Required: Your ChillToRent Landlord KYC Status Update'
-            
+
             const html = newVerificationState
                 ? `
                     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; max-width: 480px; margin: 20px auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
@@ -148,9 +142,8 @@ export async function GET() {
             )
         }
 
-        const supabaseAdmin = await createAdminSupabaseClient()
+        const supabaseAdmin = createAdminSupabaseClient()
 
-        // Fetch landlords needing KYC verification
         const { data: landlordsData, error: landlordError } = await (supabaseAdmin
             .from('profiles') as any)
             .select('id, role, full_name, email, phone, kyc_verified, created_at')
@@ -167,7 +160,6 @@ export async function GET() {
 
         const landlordIds = landlords.map((l: any) => l.id)
 
-        // Fetch properties with ownership docs for these landlords
         const { data: propertiesData, error: propertiesError } = await (supabaseAdmin
             .from('properties') as any)
             .select('id, title, ownership_doc_url, landlord_id')
@@ -178,7 +170,6 @@ export async function GET() {
 
         const properties = propertiesData || []
 
-        // Group properties by landlord_id
         const propertiesMap: Record<string, any[]> = {}
         properties.forEach((prop: any) => {
             if (!propertiesMap[prop.landlord_id]) {
@@ -191,7 +182,6 @@ export async function GET() {
             })
         })
 
-        // Combine profile and properties
         const landlordsWithDocs = landlords.map((l: any) => ({
             ...l,
             properties: propertiesMap[l.id] || [],

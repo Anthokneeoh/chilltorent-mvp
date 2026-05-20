@@ -41,7 +41,6 @@ export function Sidebar() {
             return false
         }
 
-        // Prevent duplicate highlights: check if another nav item has a more specific prefix match
         const items = getNavItems()
         const hasMoreSpecificMatch = items.some(
             (item) => item.href !== href && item.href.startsWith(href + '/') && (pathname === item.href || pathname.startsWith(item.href + '/'))
@@ -100,7 +99,15 @@ export function Sidebar() {
 
     const navItems = getNavItems()
 
-    if (!user || !profile) return null
+    if (!user) return null
+
+    if (!profile) {
+        return (
+            <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:top-16 md:bottom-0 md:left-0 bg-cloud-whisper border-r border-pale-ash/50">
+                <div className="flex flex-col flex-1 pt-5 pb-4" />
+            </aside>
+        )
+    }
 
     return (
         <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:top-16 md:bottom-0 md:left-0 bg-cloud-whisper border-r border-pale-ash/50">

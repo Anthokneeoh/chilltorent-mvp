@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 import { type Database } from './types'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -21,7 +22,6 @@ export async function createServerSupabaseClient() {
                             cookieStore.set(name, value, options)
                         )
                     } catch {
-
                     }
                 },
             },
@@ -29,28 +29,20 @@ export async function createServerSupabaseClient() {
     )
 }
 
+export function createAdminSupabaseClient() {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        console.error('[CRITICAL FAILURE] SUPABASE_SERVICE_ROLE_KEY is missing from environment variables!')
+        throw new Error('Service role key not configured')
+    }
 
-export async function createAdminSupabaseClient() {
-    const cookieStore = await cookies()
-
-    return createServerClient<Database>(
+    return createClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
         {
-            cookies: {
-                getAll() {
-                    return cookieStore.getAll()
-                },
-                setAll(cookiesToSet) {
-                    try {
-                        cookiesToSet.forEach(({ name, value, options }) =>
-                            cookieStore.set(name, value, options)
-                        )
-                    } catch {
-
-                    }
-                },
-            },
+            auth: {
+                autoRefreshToken: false,
+                persistSession: false
+            }
         }
     )
 }
@@ -67,7 +59,6 @@ export async function getCurrentUser() {
 
     return { user, profile }
 }
-
 
 export async function hasRole(requiredRole: 'tenant' | 'landlord' | 'admin') {
     const accountInstance = await getCurrentUser()

@@ -12,9 +12,8 @@ export async function GET() {
             )
         }
 
-        const supabaseAdmin = await createAdminSupabaseClient()
+        const supabaseAdmin = createAdminSupabaseClient()
 
-        // 1. Fetch properties awaiting approval
         const { data: listingsData, error: listingsError } = await (supabaseAdmin
             .from('properties') as any)
             .select(`
@@ -33,7 +32,6 @@ export async function GET() {
 
         const propertyIds = listings.map((p: any) => p.id)
 
-        // 2. Fetch media list
         const { data: mediaData, error: mediaError } = await (supabaseAdmin
             .from('property_media') as any)
             .select('property_id, url, media_type, is_thumbnail')
@@ -52,13 +50,11 @@ export async function GET() {
             }
         })
 
-        // 3. Compile listings with media
         const compiledQueue = listings.map((property: any) => ({
             ...property,
             media: mediaMap[property.id] || [],
         }))
 
-        // Log results to assist debugging (Fix 6)
         console.log(`[LISTINGS QUEUE] Fetched ${compiledQueue.length} listings awaiting approval.`)
 
         return NextResponse.json({ listings: compiledQueue })
@@ -91,9 +87,8 @@ export async function POST(request: Request) {
             )
         }
 
-        const supabaseAdmin = await createAdminSupabaseClient()
+        const supabaseAdmin = createAdminSupabaseClient()
 
-        // Fetch property landlord details
         const { data: property, error: fetchError } = await (supabaseAdmin
             .from('properties') as any)
             .select('title, landlord:profiles!landlord_id(email, full_name)')
@@ -109,7 +104,6 @@ export async function POST(request: Request) {
 
         const newStatus = action === 'approve' ? 'ACTIVE' : 'REJECTED'
 
-        // Commit status change
         const { error: updateError } = await (supabaseAdmin
             .from('properties') as any)
             .update({ status: newStatus, updated_at: new Date().toISOString() })
@@ -119,7 +113,6 @@ export async function POST(request: Request) {
 
         console.log(`[PROPERTY ${action.toUpperCase()}] Property: ${propertyId}`)
 
-        // Send email notification to landlord
         if (property.landlord?.email) {
             try {
                 if (!process.env.RESEND_API_KEY) {
