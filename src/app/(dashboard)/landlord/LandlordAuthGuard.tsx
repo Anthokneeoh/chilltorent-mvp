@@ -5,17 +5,17 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
 export default function LandlordAuthGuard({ children }: { children: React.ReactNode }) {
-  const { user, profile, isLoading } = useAuth()
+  const { user, isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && (!user || profile?.role !== 'landlord')) {
+    if (!isLoading && !user) {
       router.push('/login')
     }
-  }, [isLoading, user, profile, router])
+  }, [isLoading, user, router])
 
   if (isLoading) return null
-  if (!user || profile?.role !== 'landlord') return null
+  if (!user) return null
 
   return <>{children}</>
 }

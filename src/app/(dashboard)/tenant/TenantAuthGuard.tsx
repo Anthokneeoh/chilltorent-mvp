@@ -9,13 +9,12 @@ export default function TenantAuthGuard({ children }: { children: React.ReactNod
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && (!user || profile?.role !== 'tenant')) {
+    if (!isLoading && !user) {
       router.push('/login')
     }
   }, [isLoading, user, profile, router])
 
   if (isLoading) return null
-  if (!user || profile?.role !== 'tenant') return null
-
+  if (!user) return null
   return <>{children}</>
 }

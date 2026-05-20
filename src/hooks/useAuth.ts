@@ -109,6 +109,9 @@ export function useAuth(): UseAuthReturn {
                     setUser(null)
                     setProfile(null)
                     if (isMounted) setIsLoading(false)
+                    if (typeof window !== 'undefined') {
+                        router.push('/login')
+                    }
                     return
                 }
 
