@@ -122,22 +122,9 @@ export default function AdminDashboard() {
             }
         }
 
+        // Fires cleanly exactly once when the component establishes mount context
         loadAdminMetricsAndActivities()
 
-        // --- REAL-TIME RE-FETCH SYNC: SAFELY REFRESH ON BACK NAVIGATION OR TAB FOCUS ---
-        const handleFocusSync = () => {
-            if (document.visibilityState === 'visible') {
-                fetchAdminData()
-            }
-        }
-
-        window.addEventListener('focus', fetchAdminData)
-        document.addEventListener('visibilitychange', handleFocusSync)
-
-        return () => {
-            window.removeEventListener('focus', fetchAdminData)
-            document.removeEventListener('visibilitychange', handleFocusSync)
-        }
     }, [user, profile, authLoading, router])
 
     const getStatusBadge = (status: string) => {
@@ -172,7 +159,7 @@ export default function AdminDashboard() {
             <div className="flex min-h-screen bg-cloud-whisper text-charcoal-tone">
                 <Sidebar />
 
-                {/* Fixed Spacer Layout Margin Zone (Added mt-16 for navbar alignment) */}
+                {/* Fixed Spacer Layout Margin Zone */}
                 <main className="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8 mt-16">
                     <div className="max-w-7xl mx-auto space-y-8">
 
