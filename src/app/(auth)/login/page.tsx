@@ -34,7 +34,7 @@ function LoginForm() {
                 } else if (profile.role === 'landlord') {
                     router.push('/landlord')
                 } else {
-                    router.push('/')
+                    router.push('/tenant')
                 }
             }
         }
@@ -79,7 +79,7 @@ function LoginForm() {
         setError(null)
 
         try {
-            const { error: verifyError } = await supabase.auth.verifyOtp({
+            const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
                 email,
                 token: otp,
                 type: 'email',
@@ -87,10 +87,20 @@ function LoginForm() {
 
             if (verifyError) throw verifyError
 
-            // The global useEffect configuration above handles immediate route routing 
-            // on token verification. Fallback parameter redirect provided here:
             if (redirectTo && redirectTo !== '/') {
                 router.push(redirectTo)
+                return
+            }
+
+            if (verifyData?.user) {
+                const { data: fetchedProfile } = await (supabase.from('profiles') as any)
+                    .select('*')
+                    .eq('id', verifyData.user.id)
+                    .single()
+
+                if (fetchedProfile?.role === 'admin') router.push('/admin')
+                else if (fetchedProfile?.role === 'landlord') router.push('/landlord')
+                else router.push('/tenant')
             }
         } catch (err: any) {
             setError(err.message || 'The authorization code provided is incorrect or expired.')

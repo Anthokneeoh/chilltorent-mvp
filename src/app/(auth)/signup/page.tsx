@@ -92,14 +92,28 @@ export default function SignupPage() {
         setError(null)
 
         try {
-            const { error: verifyError } = await supabase.auth.verifyOtp({
+            const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
                 email: email.trim(),
                 token: otp.trim(),
                 type: 'email',
             })
 
             if (verifyError) throw verifyError
-            router.push('/')
+
+            if (verifyData?.user) {
+                const { data: fetchedProfile } = await (supabase.from('profiles') as any)
+                    .select('*')
+                    .eq('id', verifyData.user.id)
+                    .single()
+
+                const userRole = fetchedProfile?.role || role
+                if (userRole === 'admin') router.push('/admin')
+                else if (userRole === 'landlord') router.push('/landlord')
+                else router.push('/tenant')
+            } else {
+                if (role === 'landlord') router.push('/landlord')
+                else router.push('/tenant')
+            }
         } catch (err: any) {
             setError(err.message || 'The token validation layer rejected this verification pin code.')
         } finally {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/authStore'
 import type { User } from '@supabase/supabase-js'
@@ -15,6 +16,7 @@ interface UseAuthReturn {
 }
 
 export function useAuth(): UseAuthReturn {
+    const router = useRouter()
     const { user, profile, setUser, setProfile, clearAuth } = useAuthStore()
     const [isLoading, setIsLoading] = useState(true)
 
@@ -76,6 +78,16 @@ export function useAuth(): UseAuthReturn {
                 if (currentUser) {
                     const profileData = await fetchProfile(currentUser.id)
                     if (isMounted) setProfile(profileData)
+
+                    if (typeof window !== 'undefined') {
+                        const path = window.location.pathname
+                        if (path === '/' || path === '/login' || path === '/signup') {
+                            const role = profileData?.role || 'tenant'
+                            if (role === 'admin') router.push('/admin')
+                            else if (role === 'landlord') router.push('/landlord')
+                            else router.push('/tenant')
+                        }
+                    }
                 } else {
                     setProfile(null)
                 }
@@ -105,6 +117,16 @@ export function useAuth(): UseAuthReturn {
                 if (currentUser) {
                     const profileData = await fetchProfile(currentUser.id)
                     if (isMounted) setProfile(profileData)
+
+                    if (typeof window !== 'undefined') {
+                        const path = window.location.pathname
+                        if (path === '/' || path === '/login' || path === '/signup') {
+                            const role = profileData?.role || 'tenant'
+                            if (role === 'admin') router.push('/admin')
+                            else if (role === 'landlord') router.push('/landlord')
+                            else router.push('/tenant')
+                        }
+                    }
                 } else {
                     setProfile(null)
                 }
@@ -117,7 +139,7 @@ export function useAuth(): UseAuthReturn {
             isMounted = false
             subscription.unsubscribe()
         }
-    }, [setUser, setProfile])
+    }, [setUser, setProfile, router])
 
     return {
         user,

@@ -2,8 +2,51 @@ import Link from 'next/link'
 import { Home, Key, ShieldCheck, FileText } from 'lucide-react'
 import { HomeSearchBar } from '@/components/marketplace/HomeSearchBar'
 import { PropertyFeed } from '@/components/marketplace/PropertyFeed'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 
-export default function PublicHomepage() {
+export default async function PublicHomepage() {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // Can be ignored if middleware handles cookie refreshing
+          }
+        },
+      },
+    }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    const role = profile?.role
+    if (role === 'admin') {
+      redirect('/admin')
+    } else if (role === 'landlord') {
+      redirect('/landlord')
+    } else if (role === 'tenant') {
+      redirect('/tenant')
+    }
+  }
   return (
     <div className="min-h-screen bg-cloud-whisper text-inkwell-gray">
       {/* Navigation Header */}
