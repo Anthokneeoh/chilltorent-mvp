@@ -7,7 +7,9 @@ export default function MyListingsPage() {
             <Navbar />
             <div className="flex min-h-screen bg-cloud-whisper text-charcoal-tone">
                 <Sidebar />
-                <main className="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8">
+
+                {/* Fixed Spacer Layout Margin Zone (Added mt-16) */}
+                <main className="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8 mt-16">
                     <div className="max-w-7xl mx-auto space-y-8">
 
                         {/* Main Title Header Section */}
@@ -17,6 +19,7 @@ export default function MyListingsPage() {
                                 <p className="text-sm font-medium text-inkwell-gray mt-1">Manage your property listings</p>
                             </div>
                         </div>
+
                     </div>
                 </main>
             </div>

@@ -128,7 +128,7 @@ function LandlordChatContent() {
     }
 
     return (
-        <div className="h-[calc(100vh-112px)] flex flex-col bg-pure-white text-charcoal-tone rounded-2xl border border-pale-ash/40 shadow-subtle overflow-hidden">
+        <div className="h-[calc(100vh-10rem)] flex flex-col bg-pure-white text-charcoal-tone rounded-2xl border border-pale-ash/40 shadow-subtle overflow-hidden">
             {/* Structural Workspace Banner */}
             <div className="border-b border-pale-ash/40 bg-pure-white px-6 py-4">
                 <h1 className="text-xl font-black tracking-tight text-charcoal-tone">Tenant Correspondence</h1>
@@ -204,11 +204,9 @@ export default function LandlordChatPage() {
     return (
         <>
             <Navbar />
-            <div className="flex">
+            <div className="flex min-h-screen bg-cloud-whisper text-charcoal-tone">
                 <Sidebar />
-                <main className="flex-1 md:ml-64 p-6 sm:p-8">
-                    {/* FIX: Native boundary container wrapper now natively catches searchParams 
-                      or layout async execution dependencies perfectly */}
+                <main className="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8 mt-16">
                     <Suspense fallback={
                         <div className="w-full h-[60vh] flex flex-col items-center justify-center gap-3">
                             <Loader2 className="h-5 w-5 text-sky-connect animate-spin" />
