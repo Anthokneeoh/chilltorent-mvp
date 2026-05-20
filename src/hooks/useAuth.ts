@@ -61,6 +61,9 @@ export function useAuth(): UseAuthReturn {
                 localStorage.clear()
                 sessionStorage.clear()
             }
+            useAuthStore.getState().setUser(null)
+            useAuthStore.getState().setProfile(null)
+            router.push('/login')
         }
     }
 
