@@ -74,6 +74,23 @@ export default function AdminDashboard() {
     })
     const [recentActivities, setRecentActivities] = useState<any[]>([])
 
+    const fetchAdminData = async () => {
+        try {
+            const res = await fetch('/api/admin/metrics')
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed to fetch admin metrics')
+
+            if (data.metrics) {
+                setMetrics(data.metrics)
+            }
+            if (data.activities) {
+                setRecentActivities(data.activities)
+            }
+        } catch (err) {
+            console.error('Metric hydration runtime matrix error:', err)
+        }
+    }
+
     useEffect(() => {
         if (authLoading) return
 
@@ -106,24 +123,22 @@ export default function AdminDashboard() {
         }
 
         loadAdminMetricsAndActivities()
-    }, [user, profile, authLoading, router])
 
-    const fetchAdminData = async () => {
-        try {
-            const res = await fetch('/api/admin/metrics')
-            const data = await res.json()
-            if (!res.ok) throw new Error(data.error || 'Failed to fetch admin metrics')
-
-            if (data.metrics) {
-                setMetrics(data.metrics)
+        // --- REAL-TIME RE-FETCH SYNC: SAFELY REFRESH ON BACK NAVIGATION OR TAB FOCUS ---
+        const handleFocusSync = () => {
+            if (document.visibilityState === 'visible') {
+                fetchAdminData()
             }
-            if (data.activities) {
-                setRecentActivities(data.activities)
-            }
-        } catch (err) {
-            console.error('Metric hydration runtime matrix error:', err)
         }
-    }
+
+        window.addEventListener('focus', fetchAdminData)
+        document.addEventListener('visibilitychange', handleFocusSync)
+
+        return () => {
+            window.removeEventListener('focus', fetchAdminData)
+            document.removeEventListener('visibilitychange', handleFocusSync)
+        }
+    }, [user, profile, authLoading, router])
 
     const getStatusBadge = (status: string) => {
         const statusMap: Record<string, string> = {
@@ -156,7 +171,9 @@ export default function AdminDashboard() {
             <Navbar />
             <div className="flex min-h-screen bg-cloud-whisper text-charcoal-tone">
                 <Sidebar />
-                <main className="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8">
+
+                {/* Fixed Spacer Layout Margin Zone (Added mt-16 for navbar alignment) */}
+                <main className="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8 mt-16">
                     <div className="max-w-7xl mx-auto space-y-8">
 
                         {/* Header Content Section */}
@@ -213,9 +230,9 @@ export default function AdminDashboard() {
                                             <div className="space-y-1 min-w-0">
                                                 <p className="text-charcoal-tone leading-relaxed truncate">
                                                     {activity.type === 'property' ? (
-                                                        <>🏠 New Asset Listing <span className="font-bold text-charcoal-tone">"${activity.title}"</span> submitted by <span className="text-sky-connect font-bold">{activity.user}</span></>
+                                                        <>🏠 New Asset Listing <span className="font-bold text-charcoal-tone">"{activity.title}"</span> submitted by <span className="text-sky-connect font-bold">{activity.user}</span></>
                                                     ) : (
-                                                        <>👁️ Inspection request initialized for <span className="font-bold text-charcoal-tone">"${activity.property}"</span> by <span className="text-sky-connect font-bold">{activity.user}</span></>
+                                                        <>👁️ Inspection request initialized for <span className="font-bold text-charcoal-tone">"{activity.property}"</span> by <span className="text-sky-connect font-bold">{activity.user}</span></>
                                                     )}
                                                 </p>
                                                 <p className="text-[10px] font-semibold text-stone-slate/60">{formatDate(activity.created_at)}</p>
